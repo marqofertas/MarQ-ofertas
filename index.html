@@ -2834,7 +2834,7 @@ if ("serviceWorker" in navigator) {
 (async()=>{
  const endpoint='https://zonclgsfqtylnedxigxd.supabase.co/rest/v1/produtos?select=link_afiliado,preco,preco_anterior,preco_verificado_em,status_preco&ativo=eq.true&limit=1000';
  const key='sb_publishable_7Oi8lKwThZ2kKQUVxUT-oQ_3O-4_mSK';
- const norm=v=>{try{const u=new URL(v,location.href);return(u.origin.toLowerCase()+u.pathname).replace(/\\/$/,'')}catch(e){return String(v||'').trim()}};
+ const norm=v=>{try{const u=new URL(v,location.href);return(u.origin.toLowerCase()+u.pathname).replace(/\/$/,'')}catch(e){return String(v||'').trim()}};
  const money=v=>Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
  try{
   const res=await fetch(endpoint,{headers:{apikey:key,Authorization:'Bearer '+key},cache:'no-store'});
