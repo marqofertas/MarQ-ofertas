@@ -150,7 +150,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
     <div class="metric"><div class="metric-top"><span>Desconto médio</span><i class="metric-icon">%</i></div><strong id="gDiscount">—</strong><small>Das ofertas na fila</small></div>
    </div>
    <article class="card" style="margin-bottom:16px">
-    <h2>Buscar ofertas no Mercado Livre</h2><p class="sub">A busca consulta o catálogo público do Mercado Livre. Só entram na fila itens com preço anterior e desconto calculável.</p>
+    <h2>Buscar ofertas no Mercado Livre</h2><p class="sub">A busca consulta a API do Mercado Livre. Se ela pedir autorização, conecte sua conta na Visão geral do painel. Só entram na fila itens com preço anterior e desconto calculável.</p>
     <form id="garimpoSearchForm" class="form-grid">
      <label class="field">O que deseja encontrar?<input id="garimpoTerm" type="search" placeholder="Ex.: air fryer, liquidificador, tênis..." minlength="2" required></label>
      <label class="field">Desconto mínimo (%)<input id="garimpoMinDiscount" type="number" min="0" max="90" step="1" value="10"></label>
@@ -159,7 +159,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
     </form>
    </article>
    <article class="card" style="margin-bottom:16px">
-    <div class="table-head"><div><h2>Regras de publicação</h2><p class="sub">A publicação automática exige um link de afiliado válido.</p></div></div>
+    <div class="table-head"><div><h2>Regras de publicação</h2><p class="sub">A publicação automática exige um link de afiliado válido. Gere-o no Portal de Afiliados ou na Barra de Afiliados do Mercado Livre e cole na oferta.</p></div></div>
     <div class="form-grid">
      <label class="field">Desconto mínimo padrão (%)<input id="garimpoConfigDiscount" type="number" min="0" max="90" step="1" value="10"></label>
      <label class="field">Preço máximo padrão (R$)<input id="garimpoConfigPrice" type="number" min="0" step="0.01" placeholder="Sem limite"></label>
@@ -393,7 +393,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
    const image=/^https:\/\//i.test(x.thumbnail||'')?safe(x.thumbnail):'';
    const status=x.status==='published'?'Publicada':x.status==='ready'?'Pronta':x.status==='ignored'?'Ignorada':'Aguardando link';
    const link=x.affiliate_url||'';
-   return '<article class="garimpo-item"><img src="'+image+'" alt="" loading="lazy"><div class="garimpo-body"><div class="garimpo-status">'+status+'</div><div class="garimpo-title">'+safe(x.title)+'</div><div class="garimpo-prices"><strong>'+money(x.price)+'</strong>'+(x.original_price?'<del>'+money(x.original_price)+'</del>':'')+'</div><span class="garimpo-discount">-'+Number(x.discount_percent||0).toLocaleString('pt-BR')+'% OFF</span><div class="garimpo-meta">'+safe(x.seller_name||'Mercado Livre')+' · '+Number(x.sold_quantity||0).toLocaleString('pt-BR')+' vendidos</div><a href="'+safe(x.permalink)+'" target="_blank" rel="noopener" class="pill">Ver anúncio original ↗</a>'+(x.status==='published'?'<div class="garimpo-meta">Produto cadastrado na vitrine · ID '+safe(x.product_id)+'</div>':'<div class="garimpo-link"><input class="garimpo-affiliate-input" data-id="'+safe(x.id)+'" type="url" placeholder="Cole seu link afiliado meli.la" value="'+safe(link)+'"><button class="btn save-garimpo-link" data-id="'+safe(x.id)+'">Salvar link</button></div><div class="garimpo-actions">'+(link?'<button class="btn dark publish-garimpo" data-id="'+safe(x.id)+'">Publicar agora</button>':'')+'<button class="btn secondary ignore-garimpo" data-id="'+safe(x.id)+'">Ignorar</button></div>')+'</div></article>';
+   return '<article class="garimpo-item"><img src="'+image+'" alt="" loading="lazy"><div class="garimpo-body"><div class="garimpo-status">'+status+'</div><div class="garimpo-title">'+safe(x.title)+'</div><div class="garimpo-prices"><strong>'+money(x.price)+'</strong>'+(x.original_price?'<del>'+money(x.original_price)+'</del>':'')+'</div><span class="garimpo-discount">-'+Number(x.discount_percent||0).toLocaleString('pt-BR')+'% OFF</span><div class="garimpo-meta">'+safe(x.seller_name||'Mercado Livre')+' · '+Number(x.sold_quantity||0).toLocaleString('pt-BR')+' vendidos</div><a href="'+safe(x.permalink)+'" target="_blank" rel="noopener" class="pill">Ver anúncio original ↗</a>'+(x.status==='published'?'<div class="garimpo-meta">Produto cadastrado na vitrine · ID '+safe(x.product_id)+'</div>':'<div class="garimpo-link"><input class="garimpo-affiliate-input" data-id="'+safe(x.id)+'" type="url" placeholder="Cole seu link meli.la do Portal de Afiliados" value="'+safe(link)+'"><button class="btn save-garimpo-link" data-id="'+safe(x.id)+'">Salvar link</button></div><div class="garimpo-actions">'+(link?'<button class="btn dark publish-garimpo" data-id="'+safe(x.id)+'">Publicar agora</button>':'')+'<button class="btn secondary ignore-garimpo" data-id="'+safe(x.id)+'">Ignorar</button></div>')+'</div></article>';
   }).join('')||'<div class="empty">Nenhuma oportunidade nesta categoria ainda. Faça uma busca acima para começar.</div>';
  }
  async function loadGarimpo(){
