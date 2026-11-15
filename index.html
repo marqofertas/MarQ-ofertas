@@ -2828,5 +2828,37 @@ if ("serviceWorker" in navigator) {
 })();
 </script>
 
+
+<script>
+/* MARQ-LIVE-PRICES-V1 — usa somente preços confirmados pela rotina de verificação */
+(async()=>{
+ const endpoint='https://zonclgsfqtylnedxigxd.supabase.co/rest/v1/produtos?select=link_afiliado,preco,preco_anterior,preco_verificado_em,status_preco&ativo=eq.true&limit=1000';
+ const key='sb_publishable_7Oi8lKwThZ2kKQUVxUT-oQ_3O-4_mSK';
+ const norm=v=>{try{const u=new URL(v,location.href);return(u.origin.toLowerCase()+u.pathname).replace(/\\/$/,'')}catch(e){return String(v||'').trim()}};
+ const money=v=>Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+ try{
+  const res=await fetch(endpoint,{headers:{apikey:key,Authorization:'Bearer '+key},cache:'no-store'});
+  if(!res.ok)throw new Error('HTTP '+res.status);
+  const rows=await res.json(),byLink=new Map(rows.filter(x=>x.link_afiliado).map(x=>[norm(x.link_afiliado),x]));
+  document.querySelectorAll('#grade-produtos .card').forEach(card=>{
+   const buy=card.querySelector('a.botao'),price=card.querySelector('.preco');
+   if(!buy||!price)return;
+   const item=byLink.get(norm(buy.href));if(!item)return;
+   if(item.status_preco==='verificado'&&Number(item.preco)>0){
+    price.replaceChildren();
+    const current=document.createElement('strong');current.textContent=money(item.preco);price.append(current);
+    if(Number(item.preco_anterior)>0&&Math.abs(Number(item.preco_anterior)-Number(item.preco))>=.01){
+     const old=document.createElement('small');old.style.cssText='display:block;color:#806c6b;font-size:11px;text-decoration:line-through;font-weight:600';old.textContent='Antes: '+money(item.preco_anterior);price.append(old);
+     const tag=document.createElement('small');tag.style.cssText='display:block;color:#8f1728;font-size:10px;font-weight:800';tag.textContent=Number(item.preco)<Number(item.preco_anterior)?'PREÇO REDUZIDO':'PREÇO ATUALIZADO';price.append(tag);
+    }
+    const checked=document.createElement('small');checked.style.cssText='display:block;color:#806c6b;font-size:9px;font-weight:500;margin-top:4px';checked.textContent='Consultado em '+new Date(item.preco_verificado_em).toLocaleDateString('pt-BR');price.append(checked);
+   }else if(item.status_preco==='revisar'){
+    const note=document.createElement('small');note.style.cssText='display:block;color:#806c6b;font-size:9px;font-weight:600;margin-top:4px';note.textContent='Confirme o valor no anúncio';price.append(note);
+   }
+  });
+ }catch(e){console.warn('[MarQ] Não foi possível sincronizar os preços verificados:',e)}
+})();
+</script>
+
 </body>
 </html>
