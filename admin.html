@@ -24,6 +24,9 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
 #toast{position:fixed;right:18px;bottom:18px;background:var(--navy);color:#fff;padding:13px 16px;border-radius:12px;box-shadow:0 10px 35px #64101f40;font-size:12px;z-index:30;max-width:calc(100vw - 36px)}
 @media(max-width:1000px){.layout{grid-template-columns:190px minmax(0,1fr)}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.grid2{grid-template-columns:1fr}}
 @media(max-width:680px){.topbar{height:62px;padding:0 14px}.top-actions a{display:none}.layout{display:block;margin:14px auto;padding:0 12px}.sidebar{position:static;display:flex;overflow:auto;gap:4px;padding:7px;border-radius:13px;margin-bottom:16px}.side-label,.side-note{display:none}.navbtn{white-space:nowrap;width:auto;flex:0 0 auto;padding:10px;font-size:11px}.navbtn span:first-child{width:auto}.page-head{align-items:flex-start}.metrics{gap:8px}.metric{padding:13px;border-radius:14px}.metric strong{font-size:25px}.card{padding:15px;border-radius:15px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.chart-wrap{height:190px}}
+
+.garimpo-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.garimpo-item{border:1px solid var(--line);border-radius:16px;background:#fff;overflow:hidden;display:grid;grid-template-columns:116px minmax(0,1fr);min-width:0}.garimpo-item img{width:116px;height:100%;min-height:170px;object-fit:contain;background:#fff9ed;padding:8px}.garimpo-body{padding:13px;min-width:0}.garimpo-title{font-size:13px;font-weight:850;line-height:1.4;margin-bottom:7px}.garimpo-prices{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}.garimpo-prices strong{font-size:18px;color:var(--navy)}.garimpo-prices del{font-size:11px;color:var(--muted)}.garimpo-discount{display:inline-block;background:#fff0e9;color:#b42335;border-radius:7px;padding:4px 7px;font-size:11px;font-weight:900;margin:7px 0}.garimpo-meta{font-size:10px;color:var(--muted);margin:4px 0 9px}.garimpo-link{display:flex;gap:6px;margin-top:8px}.garimpo-link input{min-width:0;flex:1;width:100%;border:1px solid var(--line);border-radius:8px;padding:9px;font-size:11px}.garimpo-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.garimpo-actions button{padding:8px 10px;font-size:10px}.garimpo-status{font-size:10px;font-weight:850;color:var(--muted)}
+@media(max-width:900px){.garimpo-grid{grid-template-columns:1fr}}@media(max-width:520px){.garimpo-item{grid-template-columns:92px minmax(0,1fr)}.garimpo-item img{width:92px;min-height:150px}.garimpo-body{padding:10px}.garimpo-link{flex-direction:column}.garimpo-link button{width:100%}}
 </style>
 </head>
 <body>
@@ -48,6 +51,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
   <button class="navbtn" data-page="products"><span>▣</span>Produtos</button>
   <button class="navbtn" data-page="sales"><span>↗</span>Vendas e ganhos</button>
   <button class="navbtn" data-page="reports"><span>▤</span>Relatórios</button>
+  <button class="navbtn" data-page="garimpo"><span>⌕</span>Garimpo inteligente</button>
   <a class="navbtn" href="./painel-fotos.html" target="_blank" rel="noopener"><span>▧</span>Fotos dos produtos ↗</a>
   <div class="side-note"><b>MARQ • INTELIGÊNCIA</b>Dados reais da vitrine, organizados para ajudar você a decidir o próximo passo.</div>
  </aside>
@@ -137,6 +141,35 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
    </div>
    <article class="card table-card"><h2>Integridade dos dados</h2><div id="healthList" class="notice-list" style="margin-top:15px"></div></article>
   </section>
+  <section class="page" id="page-garimpo">
+   <div class="page-head"><div><span class="eyebrow">MARQ • GARIMPO INTELIGENTE</span><h1>Garimpo inteligente</h1><p>Encontre ofertas reais no Mercado Livre, filtre descontos e publique na vitrine MarQ.</p></div><div class="filters"><button class="btn secondary" id="garimpoRefresh">↻ Atualizar fila</button></div></div>
+   <div class="metrics" style="margin-bottom:16px">
+    <div class="metric accent"><div class="metric-top"><span>Ofertas na fila</span><i class="metric-icon">⌕</i></div><strong id="gTotal">0</strong><small>Itens encontrados</small></div>
+    <div class="metric"><div class="metric-top"><span>Aguardando link</span><i class="metric-icon">↗</i></div><strong id="gPending">0</strong><small>Precisam do seu link afiliado</small></div>
+    <div class="metric"><div class="metric-top"><span>Publicadas</span><i class="metric-icon">✓</i></div><strong id="gPublished">0</strong><small>Enviadas para a vitrine</small></div>
+    <div class="metric"><div class="metric-top"><span>Desconto médio</span><i class="metric-icon">%</i></div><strong id="gDiscount">—</strong><small>Das ofertas na fila</small></div>
+   </div>
+   <article class="card" style="margin-bottom:16px">
+    <h2>Buscar ofertas no Mercado Livre</h2><p class="sub">A busca consulta o catálogo público do Mercado Livre. Só entram na fila itens com preço anterior e desconto calculável.</p>
+    <form id="garimpoSearchForm" class="form-grid">
+     <label class="field">O que deseja encontrar?<input id="garimpoTerm" type="search" placeholder="Ex.: air fryer, liquidificador, tênis..." minlength="2" required></label>
+     <label class="field">Desconto mínimo (%)<input id="garimpoMinDiscount" type="number" min="0" max="90" step="1" value="10"></label>
+     <label class="field">Preço máximo (R$)<input id="garimpoMaxPrice" type="number" min="0" step="0.01" placeholder="Sem limite"></label>
+     <div class="field full"><button class="btn" id="garimpoSearchBtn" type="submit">⌕ Buscar ofertas agora</button><span class="hint" id="garimpoSearchStatus">A busca não publica automaticamente produtos sem link de afiliado.</span></div>
+    </form>
+   </article>
+   <article class="card" style="margin-bottom:16px">
+    <div class="table-head"><div><h2>Regras de publicação</h2><p class="sub">A publicação automática exige um link de afiliado válido.</p></div></div>
+    <div class="form-grid">
+     <label class="field">Desconto mínimo padrão (%)<input id="garimpoConfigDiscount" type="number" min="0" max="90" step="1" value="10"></label>
+     <label class="field">Preço máximo padrão (R$)<input id="garimpoConfigPrice" type="number" min="0" step="0.01" placeholder="Sem limite"></label>
+     <label class="field full" style="display:flex;align-items:center;gap:10px"><input id="garimpoAutoPublish" type="checkbox" checked style="width:18px;height:18px"> Publicar automaticamente quando o link de afiliado for salvo</label>
+     <div class="field full"><button class="btn dark" id="garimpoSaveConfig" type="button">Salvar regras</button><span class="hint" id="garimpoConfigStatus"></span></div>
+    </div>
+   </article>
+   <div class="page-head"><div><span class="eyebrow">RADAR DE OFERTAS</span><h1 style="font-size:22px">Fila de oportunidades</h1><p>Confira o desconto, adicione seu link de afiliado e publique na MarQ.</p></div><div class="filters"><select id="garimpoStatusFilter"><option value="all">Todas</option><option value="candidate">Aguardando link</option><option value="ready">Prontas</option><option value="published">Publicadas</option><option value="ignored">Ignoradas</option></select></div></div>
+   <div id="garimpoQueue" class="garimpo-grid"><div class="empty">Carregando oportunidades…</div></div>
+  </section>
  </main>
 </div>
 <div id="toast" class="hidden" role="status"></div>
@@ -159,7 +192,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
  document.querySelectorAll('.navbtn').forEach(b=>b.addEventListener('click',()=>goPage(b.dataset.page)));
  async function enter(user){
   if(!user||user.id!==ADMIN_ID){await client.auth.signOut();login.classList.remove('hidden');app.classList.add('hidden');$('logout').classList.add('hidden');status.textContent='Esta conta não está autorizada para administrar a MarQ.';return}
-  status.textContent='';login.classList.add('hidden');app.classList.remove('hidden');$('logout').classList.remove('hidden');await loadData();await loadMlStatus();
+  status.textContent='';login.classList.add('hidden');app.classList.remove('hidden');$('logout').classList.remove('hidden');await loadData();await loadMlStatus();await loadGarimpo();
  }
  $('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginButton').disabled=true;status.textContent='Validando acesso…';const {data,error}=await client.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});$('loginButton').disabled=false;if(error){status.textContent='Não foi possível entrar: '+error.message;return}await enter(data.user)});
  $('logout').addEventListener('click',async()=>{await client.auth.signOut();location.reload()});
@@ -340,6 +373,71 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
   if(error){toast('Não foi possível salvar: '+error.message);return}
   $('saleForm').reset();$('saleDate').value=new Date().toISOString().slice(0,10);toast('Registro de venda salvo.');await loadData();
  });
+
+ async function garimpoCall(payload){
+  const {data,error}=await client.functions.invoke('marq-garimpo',{body:payload});
+  if(error)throw new Error(data?.error||error.message||'Falha ao acessar o garimpo.');
+  if(data?.error)throw new Error(data.error);
+  return data;
+ }
+ let garimpoItems=[],garimpoConfig={auto_publish:true,min_discount:10,max_price:null};
+ function renderGarimpo(){
+  const list=garimpoItems,filter=$('garimpoStatusFilter').value;
+  $('gTotal').textContent=list.length.toLocaleString('pt-BR');
+  $('gPending').textContent=list.filter(x=>!x.affiliate_url&&x.status!=='published'&&x.status!=='ignored').length.toLocaleString('pt-BR');
+  $('gPublished').textContent=list.filter(x=>x.status==='published').length.toLocaleString('pt-BR');
+  const discounts=list.filter(x=>Number(x.discount_percent)>0).map(x=>Number(x.discount_percent));
+  $('gDiscount').textContent=discounts.length?(discounts.reduce((a,b)=>a+b,0)/discounts.length).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%':'—';
+  const rows=list.filter(x=>filter==='all'||x.status===filter);
+  $('garimpoQueue').innerHTML=rows.map(x=>{
+   const image=/^https:\/\//i.test(x.thumbnail||'')?safe(x.thumbnail):'';
+   const status=x.status==='published'?'Publicada':x.status==='ready'?'Pronta':x.status==='ignored'?'Ignorada':'Aguardando link';
+   const link=x.affiliate_url||'';
+   return '<article class="garimpo-item"><img src="'+image+'" alt="" loading="lazy"><div class="garimpo-body"><div class="garimpo-status">'+status+'</div><div class="garimpo-title">'+safe(x.title)+'</div><div class="garimpo-prices"><strong>'+money(x.price)+'</strong>'+(x.original_price?'<del>'+money(x.original_price)+'</del>':'')+'</div><span class="garimpo-discount">-'+Number(x.discount_percent||0).toLocaleString('pt-BR')+'% OFF</span><div class="garimpo-meta">'+safe(x.seller_name||'Mercado Livre')+' · '+Number(x.sold_quantity||0).toLocaleString('pt-BR')+' vendidos</div><a href="'+safe(x.permalink)+'" target="_blank" rel="noopener" class="pill">Ver anúncio original ↗</a>'+(x.status==='published'?'<div class="garimpo-meta">Produto cadastrado na vitrine · ID '+safe(x.product_id)+'</div>':'<div class="garimpo-link"><input class="garimpo-affiliate-input" data-id="'+safe(x.id)+'" type="url" placeholder="Cole seu link afiliado meli.la" value="'+safe(link)+'"><button class="btn save-garimpo-link" data-id="'+safe(x.id)+'">Salvar link</button></div><div class="garimpo-actions">'+(link?'<button class="btn dark publish-garimpo" data-id="'+safe(x.id)+'">Publicar agora</button>':'')+'<button class="btn secondary ignore-garimpo" data-id="'+safe(x.id)+'">Ignorar</button></div>')+'</div></article>';
+  }).join('')||'<div class="empty">Nenhuma oportunidade nesta categoria ainda. Faça uma busca acima para começar.</div>';
+ }
+ async function loadGarimpo(){
+  $('garimpoQueue').innerHTML='<div class="empty">Atualizando fila…</div>';
+  try{
+   const data=await garimpoCall({action:'list'});garimpoItems=data.items||[];garimpoConfig=data.config||garimpoConfig;
+   $('garimpoAutoPublish').checked=!!garimpoConfig.auto_publish;
+   $('garimpoConfigDiscount').value=garimpoConfig.min_discount??10;
+   $('garimpoConfigPrice').value=garimpoConfig.max_price??'';
+   $('garimpoMinDiscount').value=garimpoConfig.min_discount??10;
+   $('garimpoMaxPrice').value=garimpoConfig.max_price??'';
+   renderGarimpo();
+  }catch(e){$('garimpoQueue').innerHTML='<div class="empty">Não foi possível carregar o garimpo: '+safe(e.message)+'</div>'}
+ }
+ $('garimpoRefresh').addEventListener('click',loadGarimpo);
+ $('garimpoStatusFilter').addEventListener('change',renderGarimpo);
+ $('garimpoSearchForm').addEventListener('submit',async e=>{
+  e.preventDefault();const btn=$('garimpoSearchBtn');btn.disabled=true;btn.textContent='Buscando no Mercado Livre…';$('garimpoSearchStatus').textContent='Consultando catálogo público e validando descontos…';
+  try{
+   const data=await garimpoCall({action:'search',term:$('garimpoTerm').value.trim(),min_discount:Number($('garimpoMinDiscount').value||0),max_price:$('garimpoMaxPrice').value?Number($('garimpoMaxPrice').value):null});
+   $('garimpoSearchStatus').textContent=data.searched+' anúncios analisados · '+data.saved+' novas ofertas na fila · '+data.filtered+' fora dos filtros.';
+   toast('Busca concluída. '+data.saved+' novas oportunidades encontradas.');await loadGarimpo();
+  }catch(e){$('garimpoSearchStatus').textContent=e.message;toast('Falha na busca: '+e.message)}
+  btn.disabled=false;btn.textContent='⌕ Buscar ofertas agora';
+ });
+ $('garimpoSaveConfig').addEventListener('click',async()=>{
+  const btn=$('garimpoSaveConfig');btn.disabled=true;
+  try{await garimpoCall({action:'config',auto_publish:$('garimpoAutoPublish').checked,min_discount:Number($('garimpoConfigDiscount').value||0),max_price:$('garimpoConfigPrice').value?Number($('garimpoConfigPrice').value):null});toast('Regras do garimpo salvas.');$('garimpoConfigStatus').textContent='Configurações atualizadas.';await loadGarimpo()}catch(e){toast(e.message);$('garimpoConfigStatus').textContent=e.message}
+  btn.disabled=false;
+ });
+ $('garimpoQueue').addEventListener('click',async e=>{
+  const btn=e.target.closest('button[data-id]');if(!btn)return;
+  const id=btn.dataset.id;btn.disabled=true;
+  try{
+   if(btn.classList.contains('save-garimpo-link')){
+    const input=$('garimpoQueue').querySelector('.garimpo-affiliate-input[data-id="'+id+'"]');
+    const data=await garimpoCall({action:'save_link',id,affiliate_url:input?.value||''});
+    toast(data.published?'Link salvo e produto publicado na MarQ!':'Link afiliado salvo. Publique quando estiver pronto.');
+   }else if(btn.classList.contains('publish-garimpo')){await garimpoCall({action:'publish',id});toast('Oferta publicada na vitrine MarQ!')}
+   else if(btn.classList.contains('ignore-garimpo')){await garimpoCall({action:'ignore',id});toast('Oferta removida da fila ativa.')}
+   await loadGarimpo();await loadData();
+  }catch(err){toast('Não foi possível concluir: '+err.message);btn.disabled=false}
+ });
+
  async function checkSession(){const {data,error}=await client.auth.getSession();if(error){status.textContent=error.message;return}if(data.session)await enter(data.session.user)}
  let resizeTimer;window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(!$('app').classList.contains('hidden'))renderOverview()},150)});
  checkSession();
