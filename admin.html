@@ -376,7 +376,14 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
 
  async function garimpoCall(payload){
   const {data,error}=await client.functions.invoke('marq-garimpo',{body:payload});
-  if(error)throw new Error(data?.error||error.message||'Falha ao acessar o garimpo.');
+  if(error){
+   let detail=data?.error||'';
+   const response=error.context;
+   if(!detail&&response&&typeof response.clone==='function'){
+    try{const body=await response.clone().json();detail=body?.error||body?.message||''}catch{}
+   }
+   throw new Error(detail||error.message||'Falha ao acessar o garimpo.');
+  }
   if(data?.error)throw new Error(data.error);
   return data;
  }
