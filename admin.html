@@ -170,7 +170,12 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
     <p class="sub">Abre um navegador protegido na nuvem para você entrar no Centro de Afiliados SHEIN. A sessão dura até 10 minutos; gravação e logs estão desativados.</p>
     <button class="btn dark" id="sheinSecureConnect" type="button">🔒 Iniciar conexão protegida</button>
     <div class="notice hidden" id="sheinSecureStatus" style="margin-top:12px"></div>
-    <p class="hint">A conexão só poderá iniciar depois que a chave de API do Browserbase for adicionada aos segredos do Supabase. Nunca cole sua senha SHEIN aqui no painel.</p>
+    <div id="sheinRemoteLogin" class="form-grid hidden" style="margin-top:14px;padding:14px;background:#fff9ed;border-radius:12px">
+     <label class="field full">E-mail da SHEIN<input id="sheinRemoteEmail" type="email" autocomplete="username" placeholder="Seu e-mail da SHEIN"></label>
+     <label class="field full">Senha da SHEIN<input id="sheinRemotePassword" type="password" autocomplete="current-password" placeholder="Digite sua senha aqui"></label>
+     <div class="field full"><button class="btn" id="sheinSendLogin" type="button">Preencher campos no navegador ↗</button><p class="hint">Os dados são enviados pela conexão segura ao navegador remoto apenas para preencher os campos. Não são salvos nem registrados pelo painel. Confira a tela e conclua o login manualmente.</p></div>
+    </div>
+    <p class="hint">A sessão protegida dura até 10 minutos. Não envie sua senha nesta conversa.</p>
    </article>
    <article class="card" style="border:2px solid #d6ad58;margin-bottom:14px">
     <h2>1. Garimpar produtos que já estão vendendo</h2>
@@ -254,6 +259,22 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
  const sheinBotStatus=$('sheinBotStatus'),sheinBotResults=$('sheinBotResults');
  const secureConnectButton=$('sheinSecureConnect');
  const secureConnectStatus=$('sheinSecureStatus');
+ const remoteLogin=$('sheinRemoteLogin');
+ let sheinRemoteSessionId='';
+ $('sheinSendLogin').addEventListener('click',async()=>{
+  const email=$('sheinRemoteEmail').value.trim(),password=$('sheinRemotePassword').value;
+  if(!sheinRemoteSessionId){toast('Inicie primeiro uma nova conexão SHEIN.');return}
+  if(!email&&!password){toast('Digite o e-mail ou a senha.');return}
+  const btn=$('sheinSendLogin');btn.disabled=true;btn.textContent='Preenchendo navegador…';
+  try{
+   const {data,error}=await client.functions.invoke('marq-shein-connect',{body:{action:'fill_login',session_id:sheinRemoteSessionId,email,password}});
+   if(error||data?.error)throw new Error(data?.error||error.message);
+   $('sheinRemotePassword').value='';
+   toast(data.message||'Comando enviado ao navegador.');
+   secureConnectStatus.innerHTML='<i>✓</i><div><b>Preenchimento enviado</b>'+safe(data.message)+'</div>';
+  }catch(e){toast('Não foi possível preencher: '+e.message)}
+  finally{btn.disabled=false;btn.textContent='Preencher campos no navegador ↗'}
+ });
  secureConnectButton.addEventListener('click',async()=>{
   secureConnectButton.disabled=true;secureConnectButton.textContent='Preparando navegador protegido…';
   secureConnectStatus.classList.remove('hidden');
@@ -261,6 +282,8 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
   try{
    const {data,error}=await client.functions.invoke('marq-shein-connect',{body:{action:'create'}});
    if(error||data?.error)throw new Error(data?.error||error.message);
+   sheinRemoteSessionId=data.session_id||'';
+   remoteLogin.classList.remove('hidden');
    const link=document.createElement('a');link.href=data.live_view_url;link.target='_blank';link.rel='noopener noreferrer';link.className='btn dark';link.textContent='Abrir navegador SHEIN ↗';
    secureConnectStatus.innerHTML='<i>✓</i><div><b>Navegador protegido pronto</b>Entre na sua conta SHEIN e acesse o Centro de Afiliados. A sessão expira em até 10 minutos. </div>';
    secureConnectStatus.querySelector('div').appendChild(link);
