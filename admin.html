@@ -32,7 +32,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
 <body>
 <header class="topbar">
  <div class="brand"><span class="brand-mark">Q</span><span>MarQ <small>CENTRAL DE COMANDO</small></span></div>
- <div class="top-actions"><a href="./" target="_blank" rel="noopener">↗ Abrir vitrine</a><button id="logout" class="hidden" type="button">Sair da conta</button></div>
+ <div class="top-actions"><a href="./" target="_blank" rel="noopener">↗ Abrir vitrine</a><button id="radarShortcut" type="button">✦ Garimpo SHEIN</button><button id="logout" class="hidden" type="button">Sair da conta</button></div>
 </header>
 <section id="login">
  <div class="brand" style="color:var(--navy);margin-bottom:22px"><span class="brand-mark">Q</span><span>MarQ Admin <small style="color:#fff9ed">ACESSO RESTRITO</small></span></div>
@@ -255,6 +255,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
  function showError(msg){$('dashboardStatus').textContent=msg}
  function goPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+name));document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.page===name))}
  document.querySelectorAll('.navbtn').forEach(b=>b.addEventListener('click',()=>goPage(b.dataset.page)));
+ $('radarShortcut').addEventListener('click',()=>{goPage('shein-radar');$('page-shein-radar').scrollIntoView({behavior:'smooth',block:'start'});});
  
  const sheinBotStatus=$('sheinBotStatus'),sheinBotResults=$('sheinBotResults');
  const secureConnectButton=$('sheinSecureConnect');
