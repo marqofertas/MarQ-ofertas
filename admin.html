@@ -189,7 +189,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
    </article>
   </section>
   <section class="page" id="page-garimpo">
-   <div class="page-head"><div><span class="eyebrow">MARQ • GARIMPO INTELIGENTE</span><h1>Garimpo inteligente</h1><p>Encontre ofertas reais no Mercado Livre, filtre descontos e publique na vitrine MarQ.</p></div><div class="filters"><button class="btn secondary" id="garimpoRefresh">↻ Atualizar fila</button></div></div>
+   <div class="page-head"><div><span class="eyebrow">MARQ • GARIMPO INTELIGENTE</span><h1>Garimpo inteligente</h1><p>Encontre ofertas reais no Mercado Livre, filtre descontos e publique na vitrine MarQ.</p></div><div class="filters"><button class="btn secondary" id="mlConnectShortcut" type="button">Conectar Mercado Livre</button><button class="btn secondary" id="garimpoRefresh">↻ Atualizar fila</button></div></div>
    <div class="metrics" style="margin-bottom:16px">
     <div class="metric accent"><div class="metric-top"><span>Ofertas na fila</span><i class="metric-icon">⌕</i></div><strong id="gTotal">0</strong><small>Itens encontrados</small></div>
     <div class="metric"><div class="metric-top"><span>Aguardando link</span><i class="metric-icon">↗</i></div><strong id="gPending">0</strong><small>Precisam do seu link afiliado</small></div>
@@ -501,6 +501,11 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
    renderGarimpo();
   }catch(e){$('garimpoQueue').innerHTML='<div class="empty">Não foi possível carregar o garimpo: '+safe(e.message)+'</div>'}
  }
+ $('mlConnectShortcut').addEventListener('click',()=>{
+  goPage('products');
+  const card=$('mlConnectionStatus')?.closest('article');
+  card?.scrollIntoView({behavior:'smooth',block:'center'});
+ });
  $('garimpoRefresh').addEventListener('click',loadGarimpo);
  $('garimpoStatusFilter').addEventListener('change',renderGarimpo);
  $('garimpoSearchForm').addEventListener('submit',async e=>{
