@@ -203,7 +203,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
      <label class="field">O que deseja encontrar?<input id="garimpoTerm" type="search" placeholder="Ex.: air fryer, liquidificador, tênis..." minlength="2" required></label>
      <label class="field">Desconto mínimo (%)<input id="garimpoMinDiscount" type="number" min="0" max="90" step="1" value="10"></label>
      <label class="field">Preço máximo (R$)<input id="garimpoMaxPrice" type="number" min="0" step="0.01" placeholder="Sem limite"></label>
-     <div class="field full"><button class="btn" id="garimpoSearchBtn" type="submit">⌕ Buscar ofertas agora</button><span class="hint" id="garimpoSearchStatus">A busca não publica automaticamente produtos sem link de afiliado.</span></div>
+     <div class="field full"><div class="form-actions" style="margin-top:6px"><button class="btn" id="garimpoSearchBtn" type="submit">⌕ Buscar este produto</button><button class="btn dark" id="garimpoAutoScanBtn" type="button">✦ Garimpar achadinhos automaticamente</button></div><span class="hint" id="garimpoSearchStatus">O robô pesquisa várias categorias, filtra descontos e coloca os candidatos na fila. O link de afiliado é necessário para publicar com comissão.</span></div>
     </form>
    </article>
    <article class="card" style="margin-bottom:16px">
@@ -511,6 +511,26 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
    toast('Busca concluída. '+data.saved+' novas oportunidades encontradas.');await loadGarimpo();
   }catch(e){$('garimpoSearchStatus').textContent=e.message;toast('Falha na busca: '+e.message)}
   btn.disabled=false;btn.textContent='⌕ Buscar ofertas agora';
+ });
+ $('garimpoAutoScanBtn').addEventListener('click',async()=>{
+  const btn=$('garimpoAutoScanBtn'),status=$('garimpoSearchStatus');
+  const terms=['air fryer','fone bluetooth','liquidificador','cafeteira','aspirador de pó','panela elétrica','organizador de cozinha','smartwatch','cadeira de escritório','ventilador'];
+  const minDiscount=Number($('garimpoMinDiscount').value||10);
+  const maxPrice=$('garimpoMaxPrice').value?Number($('garimpoMaxPrice').value):null;
+  let searched=0,saved=0,filtered=0,failed=[];
+  btn.disabled=true;btn.textContent='Garimpando 0/'+terms.length+'…';
+  for(let i=0;i<terms.length;i++){
+   btn.textContent='Garimpando '+(i+1)+'/'+terms.length+'…';
+   status.textContent='Pesquisando: '+terms[i]+' ('+(i+1)+' de '+terms.length+').';
+   try{
+    const data=await garimpoCall({action:'search',term:terms[i],min_discount:minDiscount,max_price:maxPrice});
+    searched+=Number(data.searched||0);saved+=Number(data.saved||0);filtered+=Number(data.filtered||0);
+   }catch(err){failed.push(terms[i]+': '+err.message);if(failed.length===1)status.textContent='Algumas buscas foram recusadas; continuando as demais…'}
+  }
+  await loadGarimpo();
+  status.textContent='Garimpo finalizado: '+searched+' anúncios analisados · '+saved+' novas oportunidades na fila · '+filtered+' filtrados.'+(failed.length?' Falhas: '+failed.join(' | '):'');
+  toast(saved+' novas oportunidades encontradas em '+terms.length+' categorias.');
+  btn.disabled=false;btn.textContent='✦ Garimpar achadinhos automaticamente';
  });
  $('garimpoSaveConfig').addEventListener('click',async()=>{
   const btn=$('garimpoSaveConfig');btn.disabled=true;
