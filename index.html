@@ -2818,16 +2818,22 @@ if ("serviceWorker" in navigator) {
 }
 
 
-/* MARQ BLACK ACCENT — nome, oferta, preço, detalhes e botão em preto */
-#grade-produtos .info h3,
-#grade-produtos .info h3 a,
-#grade-produtos .sold,
-#grade-produtos .preco,
-#grade-produtos .preco strong,
-#grade-produtos .preco small,
-#grade-produtos .detalhes-link{color:#111111!important}
-#grade-produtos .botao{background:#111111!important;color:#ffffff!important;border-color:#111111!important}
-#grade-produtos .botao:hover{background:#333333!important}
+/* MARQ BLACK ACCENT V2 — força nome, etiqueta OFERTA e todos os valores em preto */
+#grade-produtos .card .info h3,
+#grade-produtos .card .info h3 a,
+#grade-produtos .card .sold,
+#grade-produtos .card .preco,
+#grade-produtos .card .preco *,
+#grade-produtos .card .detalhes-link{color:#000!important}
+#grade-produtos .card .preco::before{
+  color:#000!important;background:#eee!important;border:1px solid #ccc!important;
+}
+#grade-produtos .card .preco del,
+#grade-produtos .card .preco s,
+#grade-produtos .card .preco .preco-antigo{color:#000!important}
+#grade-produtos .card .sold{background:#f4f4f4!important;border:1px solid #bbb!important}
+#grade-produtos .card .botao{background:#000!important;color:#fff!important;border-color:#000!important;box-shadow:none!important}
+#grade-produtos .card .botao:hover{background:#292929!important;border-color:#292929!important}
 </style>
 <script>
 /* MARQ-PRODUCT-GALLERY-V1 */
