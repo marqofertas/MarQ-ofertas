@@ -152,7 +152,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
    <article class="card" style="margin-bottom:16px;border-color:#d6ad58">
     <div class="table-head"><div><h2>Importar oferta da SHEIN</h2><p class="sub">Cole aqui o texto completo copiado pelo botão Ganhar no painel de afiliados. O MarQ identifica o título, preço e seu link exclusivo.</p></div><span class="pill good">SHEIN</span></div>
     <label class="field full">Texto copiado da SHEIN<textarea id="sheinAffiliateText" rows="6" placeholder="Cole aqui a legenda completa, incluindo o link onelink.shein.com..." style="display:block;width:100%;margin-top:6px;border:1px solid var(--line);border-radius:10px;padding:12px;font:13px/1.5 inherit;resize:vertical"></textarea></label>
-    <div class="form-actions"><button class="btn" id="sheinPreviewBtn" type="button">Identificar oferta</button><button class="btn dark" id="sheinImportBtn" type="button" disabled>＋ Cadastrar na MarQ</button></div>
+    <div class="form-actions"><button class="btn secondary" id="sheinClipboardBtn" type="button">Ler texto copiado</button><button class="btn" id="sheinPreviewBtn" type="button">Identificar oferta</button><button class="btn dark" id="sheinImportBtn" type="button" disabled>＋ Cadastrar na MarQ</button></div>
     <div class="notice" id="sheinImportPreview" style="margin-top:12px"><i>i</i><div><b>Aguardando texto</b>Cole o conteúdo copiado pelo botão Ganhar para conferir os dados antes de cadastrar.</div></div>
     <p class="hint">Nesta primeira etapa, o cadastro aproveita o link individual gerado pela sua conta. A foto não é inventada: será necessário adicioná-la pelo painel de fotos quando não vier disponível na origem. A busca e geração de links em lote ainda dependem de uma conexão SHEIN autorizada e validada.</p>
    </article>
@@ -468,6 +468,17 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
   if(!Number.isFinite(price)||price<=0)throw new Error('Não consegui identificar o preço. Confira se a legenda contém “Preço [R$...”');
   return {title,price,link};
  }
+ $('sheinClipboardBtn').addEventListener('click',async()=>{
+  const btn=$('sheinClipboardBtn');btn.disabled=true;
+  try{
+   if(!navigator.clipboard?.readText)throw new Error('Seu navegador não liberou a leitura da área de transferência. Use a opção de colar no campo.');
+   const copied=await navigator.clipboard.readText();
+   if(!copied.trim())throw new Error('A área de transferência está vazia. Primeiro toque em Ganhar na SHEIN.');
+   $('sheinAffiliateText').value=copied;
+   $('sheinPreviewBtn').click();
+  }catch(e){toast(e.message||'Não foi possível ler a área de transferência. Cole o texto manualmente.')}
+  finally{btn.disabled=false}
+ });
  $('sheinPreviewBtn').addEventListener('click',()=>{
   const box=$('sheinImportPreview'),btn=$('sheinImportBtn');
   try{
