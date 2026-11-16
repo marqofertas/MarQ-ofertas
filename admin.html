@@ -496,10 +496,19 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
    if(lookupError)throw lookupError;
    if(existing)throw new Error('Este link já está cadastrado na MarQ como “'+existing.nome+'”.');
    const payload={nome:sheinParsed.title,preco:sheinParsed.price,categoria:'SHEIN',link_afiliado:sheinParsed.link,Imagem:null,image_url:null,ativo:true,status_preco:'informado_afiliado'};
-   const {error}=await client.from('produtos').insert(payload);
+   const {data:created,error}=await client.from('produtos').insert(payload).select('id').single();
    if(error)throw error;
+   $('sheinImportPreview').innerHTML='<i>…</i><div><b>Produto cadastrado</b>Buscando automaticamente a foto original na SHEIN…</div>';
+   let imageMessage='A SHEIN não liberou a foto automaticamente. Você ainda pode adicioná-la pelo painel de fotos.';
+   try{
+    const {data:imageData,error:imageError}=await client.functions.invoke('marq-shein-image',{body:{product_id:created.id,affiliate_url:sheinParsed.link}});
+    if(imageError)throw imageError;
+    if(imageData?.image_found)imageMessage='Foto original localizada e vinculada ao produto!';
+    else if(imageData?.message)imageMessage=imageData.message;
+   }catch(imageError){console.warn('Busca automática da foto SHEIN:',imageError);imageMessage='O produto foi cadastrado, mas a SHEIN não permitiu localizar a foto automaticamente nesta tentativa.'}
    toast('Oferta SHEIN cadastrada na MarQ!');
-   $('sheinAffiliateText').value='';$('sheinImportPreview').innerHTML='<i>✓</i><div><b>Produto cadastrado</b>A oferta foi adicionada ao catálogo. Adicione a foto se necessário.</div>';
+   $('sheinAffiliateText').value='';
+   $('sheinImportPreview').innerHTML='<i>✓</i><div><b>Produto cadastrado</b>'+safe(imageMessage)+'</div>';
    sheinParsed=null;await loadData();
   }catch(e){toast('Não foi possível cadastrar: '+(e.message||String(e)));btn.disabled=false}
   btn.textContent='＋ Cadastrar na MarQ';
