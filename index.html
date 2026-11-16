@@ -2297,7 +2297,7 @@ footer a{color:#f4d78e!important}
   };
   try {
     const response = await fetch(MARQ_SUPABASE_URL + '/rest/v1/produtos?select=id,nome,preco,categoria,link_afiliado,ativo,Imagem,image_url&ativo=eq.true&link_afiliado=not.is.null&order=created_at.desc&limit=1000', {
-      headers: { apikey: MARQ_PUBLIC_KEY, Authorization: 'Bearer ' + MARQ_PUBLIC_KEY },
+      headers: { apikey: MARQ_PUBLIC_KEY },
       cache: 'no-store'
     });
     if (!response.ok) throw new Error('Catálogo dinâmico: HTTP ' + response.status);
