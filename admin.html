@@ -154,31 +154,33 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
    <article class="card table-card"><h2>Integridade dos dados</h2><div id="healthList" class="notice-list" style="margin-top:15px"></div></article>
   </section>
   <section class="page" id="page-shein-radar">
-   <div class="page-head"><div><span class="eyebrow">MARQ • GARIMPO SHEIN</span><h1>Garimpo SHEIN</h1><p>Fluxo rápido para escolher ofertas no Centro de Afiliados e publicar na MarQ pelo celular.</p></div></div>
+   <div class="page-head"><div><span class="eyebrow">MARQ • RADAR DE TENDÊNCIAS</span><h1>Radar SHEIN</h1><p>Encontre produtos em alta nas listas públicas oficiais e transforme os escolhidos em ofertas com seu link de afiliado.</p></div></div>
    <article class="card" style="border:2px solid #d6ad58;margin-bottom:14px">
-    <h2>1. Abrir o Centro de Afiliados oficial</h2>
-    <p class="sub">Entre na sua conta SHEIN e escolha produtos recomendados dentro da área de afiliados. O link precisa ser gerado por lá para que sua comissão seja rastreada.</p>
-    <a class="btn" href="https://m.shein.com/br/affiliate" target="_blank" rel="noopener" style="display:inline-flex;text-decoration:none;align-items:center;justify-content:center">Abrir Centro de Afiliados SHEIN ↗</a>
-    <p class="hint">Não compartilhe o link comum da página de produto. Use a opção de compartilhar/ganhar disponível no Centro de Afiliados.</p>
+    <h2>1. Garimpar produtos que já estão vendendo</h2>
+    <p class="sub">Atalhos para listas públicas da própria SHEIN. Elas exibem indicadores como posição no ranking, quantidade vendida e descontos anunciados.</p>
+    <div class="garimpo-grid">
+     <div class="garimpo-item"><div style="display:grid;place-items:center;background:#fff9ed;color:#64101f;font-size:34px">🏆</div><div class="garimpo-body"><div class="garimpo-title">Mais vendidos</div><div class="garimpo-meta">Produtos com destaque de vendas na SHEIN Brasil.</div><a class="btn" href="https://br.shein.com/trends/Best-Sellers-sc-006203478.html" target="_blank" rel="noopener" style="display:inline-flex;text-decoration:none">Abrir ranking ↗</a></div></div>
+     <div class="garimpo-item"><div style="display:grid;place-items:center;background:#fff9ed;color:#64101f;font-size:34px">🔥</div><div class="garimpo-body"><div class="garimpo-title">Top ranking</div><div class="garimpo-meta">Lista ampla com produtos populares e ofertas.</div><a class="btn" href="https://br.shein.com/hotsale/Top-ranking-sc-003511844.html" target="_blank" rel="noopener" style="display:inline-flex;text-decoration:none">Abrir ranking ↗</a></div></div>
+     <div class="garimpo-item"><div style="display:grid;place-items:center;background:#fff9ed;color:#64101f;font-size:34px">📈</div><div class="garimpo-body"><div class="garimpo-title">Bestsellers</div><div class="garimpo-meta">Outra seleção oficial de produtos mais vendidos.</div><a class="btn" href="https://br.shein.com/style/Bestsellers-sc-001911680.html" target="_blank" rel="noopener" style="display:inline-flex;text-decoration:none">Abrir lista ↗</a></div></div>
+     <div class="garimpo-item"><div style="display:grid;place-items:center;background:#fff9ed;color:#64101f;font-size:34px">🏷️</div><div class="garimpo-body"><div class="garimpo-title">Todas as ofertas</div><div class="garimpo-meta">Produtos em promoção, com preços e descontos exibidos.</div><a class="btn" href="https://br.shein.com/recommend/All-Sale-sc-10050115957.html" target="_blank" rel="noopener" style="display:inline-flex;text-decoration:none">Ver ofertas ↗</a></div></div>
+    </div>
+    <p class="hint">Os rankings são fontes de pesquisa, não uma confirmação de comissão. Confira disponibilidade, preço e avaliação antes de escolher.</p>
    </article>
    <article class="card" style="margin-bottom:14px">
-    <h2>2. Copiar a oferta pelo botão Ganhar</h2>
-    <div class="notice-list">
-     <div class="notice"><i>1</i><div><b>Escolha um produto recomendado</b>Priorize preço competitivo, boa avaliação, muitas vendas e desconto real exibido pela SHEIN.</div></div>
-     <div class="notice"><i>2</i><div><b>Toque em Ganhar / Compartilhar</b>Gere a mensagem dentro do Centro de Afiliados. Copie o texto completo com título, preço e link.</div></div>
-     <div class="notice"><i>3</i><div><b>Volte para a MarQ</b>Use o botão abaixo para abrir a importação, cole a mensagem e confira os dados antes de cadastrar.</div></div>
+    <h2>2. Gerar seu link rastreável</h2>
+    <p class="sub">Para receber comissão, selecione o produto dentro do Centro de Afiliados. Um link comum copiado da loja não substitui o link oficial de afiliado.</p>
+    <a class="btn dark" href="https://m.shein.com/br/affiliate" target="_blank" rel="noopener" style="display:inline-flex;text-decoration:none">Abrir Centro de Afiliados SHEIN ↗</a>
+    <div class="notice-list" style="margin-top:12px">
+     <div class="notice"><i>1</i><div><b>Escolha o produto no ranking</b>Confira preço, vendas, desconto, avaliações e se ainda está disponível.</div></div>
+     <div class="notice"><i>2</i><div><b>Localize o mesmo produto no Centro de Afiliados</b>Use a seleção/recomendação disponível na sua conta e gere o link por lá.</div></div>
+     <div class="notice"><i>3</i><div><b>Copie a mensagem completa</b>Use o botão Ganhar/Compartilhar para copiar título, preço e link oficial.</div></div>
     </div>
-    <button class="btn dark" id="sheinGoImport" type="button" style="margin-top:14px;width:100%">Ir para importar e publicar na MarQ ↓</button>
    </article>
    <article class="card">
-    <h2>O que a MarQ faz automaticamente</h2>
-    <div class="notice-list">
-     <div class="notice"><i>✓</i><div><b>Identifica os dados</b>Lê título, preço e link oficial gerado pela sua conta.</div></div>
-     <div class="notice"><i>✓</i><div><b>Evita duplicados</b>Confere se o mesmo link já existe no catálogo.</div></div>
-     <div class="notice"><i>✓</i><div><b>Busca a foto</b>Tenta localizar a imagem do produto e vinculá-la automaticamente.</div></div>
-     <div class="notice"><i>✓</i><div><b>Publica na vitrine</b>Quando o cadastro é concluído, o produto ativo aparece na loja MarQ.</div></div>
-    </div>
-    <p class="hint">Importante: a SHEIN não disponibiliza uma API pública de afiliados para buscar automaticamente todo o catálogo. Por isso, esta versão não coleta produtos escondida nem usa robô na sua conta; a seleção e a geração do link continuam no Centro de Afiliados oficial. A MarQ automatiza o cadastro depois que você compartilha a oferta.</p>
+    <h2>3. Importar e publicar na MarQ</h2>
+    <p class="sub">A importação já está integrada ao painel: identifica o texto, evita duplicados, cadastra o produto e tenta localizar a foto original.</p>
+    <button class="btn dark" id="sheinGoImport" type="button" style="margin-top:4px;width:100%">Ir para importar oferta ↓</button>
+    <div class="notice warn" style="margin-top:12px"><i>!</i><div><b>Limite atual da automação</b>O Radar oferece atalhos para listas públicas oficiais. A SHEIN não disponibiliza API pública de afiliados para automatizar a geração dos seus links. Por isso, ainda não existe captura autônoma e publicação sem nenhuma ação sua. Não vamos usar robôs que arrisquem bloquear sua conta.</div></div>
    </article>
   </section>
   <section class="page" id="page-garimpo">
