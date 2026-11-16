@@ -456,14 +456,14 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
  let sheinParsed=null;
  function parseSheinAffiliateText(raw){
   const text=String(raw||'').trim();
-  const linkMatch=text.match(/https?:\\/\\/onelink\\.shein\\.com\\/[^\\s<>"']+/i);
-  const priceMatch=text.match(/(?:Preço|Preco)\\s*\\[\\s*R\\$\\s*([0-9.,]+)/i);
-  const titleLine=text.split(/\\r?\\n/).map(x=>x.trim()).find(x=>/^🛒/.test(x));
-  const title=titleLine?titleLine.replace(/^🛒\\s*/,'').trim():'';
+  const linkMatch=text.match(/https?:\/\/onelink\.shein\.com\/[^\s<>"']+/i);
+  const priceMatch=text.match(/(?:Preço|Preco)\s*\[\s*R\$\s*([0-9.,]+)/i);
+  const titleLine=text.split(/\r?\n/).map(x=>x.trim()).find(x=>/^🛒/.test(x));
+  const title=titleLine?titleLine.replace(/^🛒\s*/,'').trim():'';
   const priceText=priceMatch?priceMatch[1]:'';
-  const price=priceText?Number(priceText.replace(/\\./g,'').replace(',','.')):NaN;
+  const price=priceText?Number(priceText.replace(/\./g,'').replace(',','.')):NaN;
   const link=linkMatch?linkMatch[0].replace(/[),.;]+$/,''):'';
-  if(!link||!/^https:\\/\\/onelink\\.shein\\.com\\//i.test(link))throw new Error('Não encontrei um link exclusivo onelink.shein.com no texto.');
+  if(!link||!/^https:\/\/onelink\.shein\.com\//i.test(link))throw new Error('Não encontrei um link exclusivo onelink.shein.com no texto.');
   if(!title)throw new Error('Não encontrei a linha do produto iniciada por 🛒. Copie a legenda completa pelo botão Ganhar.');
   if(!Number.isFinite(price)||price<=0)throw new Error('Não consegui identificar o preço. Confira se a legenda contém “Preço [R$...”');
   return {title,price,link};
