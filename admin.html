@@ -166,6 +166,13 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
     <div id="sheinBotResults"><div class="empty">Nenhum garimpo executado nesta sessão.</div></div>
    </article>
    <article class="card" style="border:2px solid #d6ad58;margin-bottom:14px">
+    <h2>Conectar SHEIN pelo celular</h2>
+    <p class="sub">Abre um navegador protegido na nuvem para você entrar no Centro de Afiliados SHEIN. A sessão dura até 10 minutos; gravação e logs estão desativados.</p>
+    <button class="btn dark" id="sheinSecureConnect" type="button">🔒 Iniciar conexão protegida</button>
+    <div class="notice hidden" id="sheinSecureStatus" style="margin-top:12px"></div>
+    <p class="hint">A conexão só poderá iniciar depois que a chave de API do Browserbase for adicionada aos segredos do Supabase. Nunca cole sua senha SHEIN aqui no painel.</p>
+   </article>
+   <article class="card" style="border:2px solid #d6ad58;margin-bottom:14px">
     <h2>1. Garimpar produtos que já estão vendendo</h2>
     <p class="sub">Atalhos para listas públicas da própria SHEIN. Elas exibem indicadores como posição no ranking, quantidade vendida e descontos anunciados.</p>
     <div class="garimpo-grid">
@@ -245,6 +252,24 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
  document.querySelectorAll('.navbtn').forEach(b=>b.addEventListener('click',()=>goPage(b.dataset.page)));
  
  const sheinBotStatus=$('sheinBotStatus'),sheinBotResults=$('sheinBotResults');
+ const secureConnectButton=$('sheinSecureConnect');
+ const secureConnectStatus=$('sheinSecureStatus');
+ secureConnectButton.addEventListener('click',async()=>{
+  secureConnectButton.disabled=true;secureConnectButton.textContent='Preparando navegador protegido…';
+  secureConnectStatus.classList.remove('hidden');
+  secureConnectStatus.innerHTML='<i>↻</i><div><b>Solicitando sessão segura</b>Aguarde alguns segundos.</div>';
+  try{
+   const {data,error}=await client.functions.invoke('marq-shein-connect',{body:{action:'create'}});
+   if(error||data?.error)throw new Error(data?.error||error.message);
+   const link=document.createElement('a');link.href=data.live_view_url;link.target='_blank';link.rel='noopener noreferrer';link.className='btn dark';link.textContent='Abrir navegador SHEIN ↗';
+   secureConnectStatus.innerHTML='<i>✓</i><div><b>Navegador protegido pronto</b>Entre na sua conta SHEIN e acesse o Centro de Afiliados. A sessão expira em até 10 minutos. </div>';
+   secureConnectStatus.querySelector('div').appendChild(link);
+   secureConnectButton.textContent='Criar nova sessão';
+  }catch(e){
+   secureConnectStatus.innerHTML='<i>!</i><div><b>Conexão não iniciada</b>'+safe(e.message)+'</div>';
+   secureConnectButton.textContent='Tentar novamente';
+  }finally{secureConnectButton.disabled=false}
+ });
  function renderSheinCandidates(items){
   if(!items||!items.length){sheinBotResults.innerHTML='<div class="empty">Nenhum produto foi extraído. A SHEIN pode ter bloqueado a leitura automática das listas nesta consulta.</div>';return}
   sheinBotResults.innerHTML=items.map(x=>`<div class="notice" style="display:block;margin:10px 0;padding:14px">
