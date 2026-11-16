@@ -52,6 +52,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
   <button class="navbtn" data-page="sales"><span>↗</span>Vendas e ganhos</button>
   <button class="navbtn" data-page="reports"><span>▤</span>Relatórios</button>
   <button class="navbtn" data-page="garimpo"><span>⌕</span>Garimpo inteligente</button>
+  <button class="navbtn" data-page="shein-radar"><span>✦</span>Garimpo SHEIN</button>
   <a class="navbtn" href="./painel-fotos.html" target="_blank" rel="noopener"><span>▧</span>Fotos dos produtos ↗</a>
   <div class="side-note"><b>MARQ • INTELIGÊNCIA</b>Dados reais da vitrine, organizados para ajudar você a decidir o próximo passo.</div>
  </aside>
@@ -152,6 +153,34 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
    </div>
    <article class="card table-card"><h2>Integridade dos dados</h2><div id="healthList" class="notice-list" style="margin-top:15px"></div></article>
   </section>
+  <section class="page" id="page-shein-radar">
+   <div class="page-head"><div><span class="eyebrow">MARQ • GARIMPO SHEIN</span><h1>Garimpo SHEIN</h1><p>Fluxo rápido para escolher ofertas no Centro de Afiliados e publicar na MarQ pelo celular.</p></div></div>
+   <article class="card" style="border:2px solid #d6ad58;margin-bottom:14px">
+    <h2>1. Abrir o Centro de Afiliados oficial</h2>
+    <p class="sub">Entre na sua conta SHEIN e escolha produtos recomendados dentro da área de afiliados. O link precisa ser gerado por lá para que sua comissão seja rastreada.</p>
+    <a class="btn" href="https://m.shein.com/br/affiliate" target="_blank" rel="noopener" style="display:inline-flex;text-decoration:none;align-items:center;justify-content:center">Abrir Centro de Afiliados SHEIN ↗</a>
+    <p class="hint">Não compartilhe o link comum da página de produto. Use a opção de compartilhar/ganhar disponível no Centro de Afiliados.</p>
+   </article>
+   <article class="card" style="margin-bottom:14px">
+    <h2>2. Copiar a oferta pelo botão Ganhar</h2>
+    <div class="notice-list">
+     <div class="notice"><i>1</i><div><b>Escolha um produto recomendado</b>Priorize preço competitivo, boa avaliação, muitas vendas e desconto real exibido pela SHEIN.</div></div>
+     <div class="notice"><i>2</i><div><b>Toque em Ganhar / Compartilhar</b>Gere a mensagem dentro do Centro de Afiliados. Copie o texto completo com título, preço e link.</div></div>
+     <div class="notice"><i>3</i><div><b>Volte para a MarQ</b>Use o botão abaixo para abrir a importação, cole a mensagem e confira os dados antes de cadastrar.</div></div>
+    </div>
+    <button class="btn dark" id="sheinGoImport" type="button" style="margin-top:14px;width:100%">Ir para importar e publicar na MarQ ↓</button>
+   </article>
+   <article class="card">
+    <h2>O que a MarQ faz automaticamente</h2>
+    <div class="notice-list">
+     <div class="notice"><i>✓</i><div><b>Identifica os dados</b>Lê título, preço e link oficial gerado pela sua conta.</div></div>
+     <div class="notice"><i>✓</i><div><b>Evita duplicados</b>Confere se o mesmo link já existe no catálogo.</div></div>
+     <div class="notice"><i>✓</i><div><b>Busca a foto</b>Tenta localizar a imagem do produto e vinculá-la automaticamente.</div></div>
+     <div class="notice"><i>✓</i><div><b>Publica na vitrine</b>Quando o cadastro é concluído, o produto ativo aparece na loja MarQ.</div></div>
+    </div>
+    <p class="hint">Importante: a SHEIN não disponibiliza uma API pública de afiliados para buscar automaticamente todo o catálogo. Por isso, esta versão não coleta produtos escondida nem usa robô na sua conta; a seleção e a geração do link continuam no Centro de Afiliados oficial. A MarQ automatiza o cadastro depois que você compartilha a oferta.</p>
+   </article>
+  </section>
   <section class="page" id="page-garimpo">
    <div class="page-head"><div><span class="eyebrow">MARQ • GARIMPO INTELIGENTE</span><h1>Garimpo inteligente</h1><p>Encontre ofertas reais no Mercado Livre, filtre descontos e publique na vitrine MarQ.</p></div><div class="filters"><button class="btn secondary" id="garimpoRefresh">↻ Atualizar fila</button></div></div>
    <div class="metrics" style="margin-bottom:16px">
@@ -202,6 +231,11 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
  function showError(msg){$('dashboardStatus').textContent=msg}
  function goPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+name));document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.page===name))}
  document.querySelectorAll('.navbtn').forEach(b=>b.addEventListener('click',()=>goPage(b.dataset.page)));
+ $('sheinGoImport').addEventListener('click',()=>{
+  goPage('products');
+  $('sheinAffiliateText').scrollIntoView({behavior:'smooth',block:'center'});
+  setTimeout(()=>$('sheinAffiliateText').focus({preventScroll:true}),350);
+ });
  async function enter(user){
   if(!user||user.id!==ADMIN_ID){await client.auth.signOut();login.classList.remove('hidden');app.classList.add('hidden');$('logout').classList.add('hidden');status.textContent='Esta conta não está autorizada para administrar a MarQ.';return}
   status.textContent='';login.classList.add('hidden');app.classList.remove('hidden');$('logout').classList.remove('hidden');await loadData();await loadMlStatus();await loadGarimpo();
