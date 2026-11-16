@@ -90,7 +90,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
     <label class="field full">Texto copiado da SHEIN<textarea id="sheinAffiliateText" rows="6" placeholder="Cole aqui a legenda completa, incluindo o link onelink.shein.com..." style="display:block;width:100%;margin-top:6px;border:1px solid var(--line);border-radius:10px;padding:12px;font:13px/1.5 inherit;resize:vertical"></textarea></label>
     <div class="form-actions"><button class="btn secondary" id="sheinClipboardBtn" type="button">Ler texto copiado</button><button class="btn" id="sheinPreviewBtn" type="button">Identificar oferta</button><button class="btn dark" id="sheinImportBtn" type="button" disabled>＋ Cadastrar na MarQ</button></div>
     <div class="notice" id="sheinImportPreview" style="margin-top:12px"><i>i</i><div><b>Aguardando texto</b>Cole o conteúdo copiado pelo botão Ganhar para conferir os dados antes de cadastrar.</div></div>
-    <p class="hint">Ao cadastrar, a MarQ tenta localizar a foto original automaticamente na página da SHEIN. Se a loja bloquear a consulta, você poderá tentar novamente na lista de produtos ou adicionar a foto manualmente. A busca e geração de links em lote ainda dependem de uma conexão SHEIN autorizada e validada.</p>
+    <p class="hint">Ao cadastrar, o produto entra automaticamente na vitrine pública e ganha uma página própria, sem precisar editar o site manualmente. A MarQ também tenta localizar a foto original na SHEIN; se a foto não estiver disponível, a oferta aparece com um aviso até você vinculá-la.</p>
    </article>
    <article class="card" id="sheinPhotoCard" style="margin:16px 0;border:2px solid #d6ad58">
     <div class="table-head"><div><h2>📸 Fotos pendentes — SHEIN</h2><p class="sub">Encontre e vincule automaticamente a foto original dos produtos que ainda estão sem imagem.</p></div><span class="pill" id="sheinPhotoCount">0 pendentes</span></div>
@@ -108,7 +108,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
    </article>
    <article class="card table-card" style="margin-top:16px"><div class="table-head"><div><h2>Atualização automática de preços</h2><p class="sub">Consulta os anúncios acessíveis, salva alterações no banco e sinaliza bloqueios sem inventar valores.</p></div><button class="btn" id="syncPrices" type="button">↻ Verificar preços agora</button></div><div id="priceSyncStatus" class="notice" role="status" style="margin-bottom:14px"><i>R$</i><div><b>Atualização pronta</b>Use o botão para verificar os produtos cadastrados.</div></div></article>
    <article class="card table-card"><div class="table-head"><div><h2>Desempenho do catálogo</h2><p class="sub">Veja quanto você pode ganhar por venda. Preencha a comissão e o preço de cada produto; os valores aparecem aqui só para você.</p></div><input id="productSearch" placeholder="Buscar produto…" aria-label="Buscar produto" style="border:1px solid var(--line);padding:10px;border-radius:10px;min-width:170px"></div><div class="tablewrap"><table><thead><tr><th>Produto / preço verificado</th><th>Categoria</th><th>Cliques</th><th>Comissão (%)</th><th>Preço do produto (R$)</th><th>Possível ganho por venda</th><th>Link afiliado</th><th>Ação</th></tr></thead><tbody id="catalogTable"></tbody></table></div></article>
-   <p class="hint">O catálogo da vitrine continua sendo a fonte principal dos produtos. Esta tela consulta os registros sincronizados no Supabase; não altera automaticamente os cartões do site.</p>
+   <p class="hint">A vitrine pública é sincronizada automaticamente com os produtos ativos cadastrados aqui. Cada novo produto ganha um cartão e uma página própria; fotos pendentes ficam sinalizadas até serem vinculadas.</p>
   </section>
   <section class="page" id="page-sales">
    <div class="page-head"><div><span class="eyebrow">RESULTADOS DO PROGRAMA DE AFILIADOS</span><h1>Vendas e ganhos</h1><p>Registre os números confirmados nos relatórios do Mercado Livre.</p></div></div>
@@ -371,7 +371,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
   try{
    const [cr,pr,sr,rr]=await Promise.all([
     client.from('cliques').select('id,produto_id,data_clique,origem').order('data_clique',{ascending:false}).limit(10000),
-    client.from('produtos').select('id,nome,categoria,link_afiliado,preco,preco_anterior,preco_verificado_em,status_preco,erro_preco').limit(10000),
+    client.from('produtos').select('id,nome,categoria,link_afiliado,preco,preco_anterior,preco_verificado_em,status_preco,erro_preco,Imagem,image_url').limit(10000),
     client.from('vendas').select('id,produto_id,data_venda,valor_venda,comissao,taxa_comissao,tipo_comissao,status,numero_pedido,observacoes').order('data_venda',{ascending:false}).limit(5000),
     client.from('comissoes_produtos').select('produto_id,taxa_percentual,preco_referencia')
    ]);
@@ -543,9 +543,9 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
     if(imageData?.image_found)imageMessage='Foto original localizada e vinculada ao produto!';
     else if(imageData?.message)imageMessage=imageData.message;
    }catch(imageError){console.warn('Busca automática da foto SHEIN:',imageError);imageMessage='O produto foi cadastrado, mas a SHEIN não permitiu localizar a foto automaticamente nesta tentativa.'}
-   toast('Oferta SHEIN cadastrada na MarQ!');
+   toast('Oferta cadastrada e publicada automaticamente na vitrine!');
    $('sheinAffiliateText').value='';
-   $('sheinImportPreview').innerHTML='<i>✓</i><div><b>Produto cadastrado</b>'+safe(imageMessage)+'</div>';
+   $('sheinImportPreview').innerHTML='<i>✓</i><div><b>Produto publicado automaticamente na vitrine</b>'+safe(imageMessage)+'<br><a href="./produto.html?id='+encodeURIComponent(created.id)+'" target="_blank" rel="noopener">Abrir página do produto ↗</a></div>';
    sheinParsed=null;await loadData();
   }catch(e){toast('Não foi possível cadastrar: '+(e.message||String(e)));btn.disabled=false}
   btn.textContent='＋ Cadastrar na MarQ';
