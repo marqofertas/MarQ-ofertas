@@ -108,15 +108,25 @@ Deno.serve(async(req:Request)=>{
   }
   if(action==="publish"){
    const id=String(body.shein_product_id||"");
+   if(!id) return json({error:"ID SHEIN ausente."},400);
    const {data:c,error:ce}=await db.from("marq_shein_candidates").select("*").eq("shein_product_id",id).single();
    if(ce) throw ce;
    if(!c.affiliate_url) return json({error:"Cadastre primeiro o link oficial de afiliado deste produto."},400);
    if(!c.price || c.price<=0) return json({error:"Preço não identificado. Atualize o preço antes de publicar."},400);
-   const {data:p,error:pe}=await db.from("produtos").insert({nome:c.title,preco:c.price,categoria:"SHEIN",link_afiliado:c.affiliate_url,Imagem:c.image_url,image_url:c.image_url,ativo:true}).select("id").single();
-   if(pe) throw pe;
-   const {error:ue}=await db.from("marq_shein_candidates").update({status:"published",product_id:p.id,published_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq("shein_product_id",id);
+   // Idempotência: se já foi publicado, devolve o mesmo produto em vez de duplicá-lo.
+   if(c.status==="published" && c.product_id) return json({ok:true,already_published:true,product_id:c.product_id});
+   // Recupera publicação anterior caso a inserção tenha concluído e a atualização do candidato tenha falhado.
+   const {data:existing,error:existingError}=await db.from("produtos").select("id").eq("link_afiliado",c.affiliate_url).limit(1).maybeSingle();
+   if(existingError) throw existingError;
+   let productId=existing?.id;
+   if(!productId){
+    const {data:p,error:pe}=await db.from("produtos").insert({nome:c.title,preco:c.price,categoria:"SHEIN",link_afiliado:c.affiliate_url,Imagem:c.image_url,image_url:c.image_url,ativo:true}).select("id").single();
+    if(pe) throw pe;
+    productId=p.id;
+   }
+   const {error:ue}=await db.from("marq_shein_candidates").update({status:"published",product_id:productId,published_at:c.published_at||new Date().toISOString(),updated_at:new Date().toISOString()}).eq("shein_product_id",id);
    if(ue) throw ue;
-   return json({ok:true,product_id:p.id});
+   return json({ok:true,already_published:!!existing,product_id:productId});
   }
   return json({error:"Ação desconhecida"},400);
  }catch(e){console.error("marq-shein-radar",e);return json({error:e instanceof Error?e.message:"Falha interna"},500)}
