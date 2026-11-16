@@ -34,7 +34,35 @@ function extract(html:string, source:string) {
   if(priceMatch){const raw=priceMatch[1].replace(/\s/g,"");const normalized=raw.includes(",")?raw.replace(/\./g,"").replace(",","."):raw;const n=Number(normalized);if(Number.isFinite(n)&&n>0&&n<100000)price=n;}
   const salesMatch=chunk.match(/([0-9][0-9.,]*\s*[kK]?\+?)\s*(?:vendidos?|vendido)/i);
   if(!out.has(id)) out.set(id,{shein_product_id:id,title,product_url:href,image_url:image,price,sales_text:salesMatch?.[1]?.trim()||null,source_url:source});
- } return [...out.values()];
+ }
+ // Fallback: SHEIN sometimes embeds product URLs in JSON/serialized markup,
+ // outside ordinary <a href="..."> elements.
+ const rawLinks = html.match(/(?:https?:)?\\/\\/br\\.shein\\.com\\/[^"'\\s<>\\\\]*?-p-\\d+\\.html(?:[?#][^"'\\s<>\\\\]*)?/gi) || [];
+ for (const raw of rawLinks) {
+  if (out.size >= 180) break;
+  const decoded = decodeEntities(raw).replace(/\\\\\\//g, "/");
+  const idMatch = decoded.match(/-p-(\\d+)\\.html/i);
+  if (!idMatch || out.has(idMatch[1])) continue;
+  let href = decoded.startsWith("//") ? "https:" + decoded : decoded;
+  try {
+   const u = new URL(href);
+   if (u.hostname.toLowerCase() !== "br.shein.com") continue;
+   href = u.toString();
+  } catch { continue; }
+  const pos = html.indexOf(raw);
+  const chunk = html.slice(Math.max(0, pos - 3500), Math.min(html.length, pos + 6500));
+  const titleMatch = chunk.match(/(?:goods_name|goodsName|productName|data-goods-name|aria-label)\\?["']?\\s*[:=]\\s*\\?["']([^"'<>]{8,220})/i);
+  const title = clean(titleMatch?.[1] || "Produto SHEIN " + idMatch[1]).slice(0,220);
+  const imgMatch = chunk.match(/(?:https?:)?\\/\\/[^"'\\s<>\\\\]+\\.(?:webp|jpe?g|png)(?:\\?[^"'\\s<>\\\\]*)?/i);
+  let image: string | null = null;
+  if (imgMatch) { try { const candidate = imgMatch[0].replace(/\\\\\\//g,"/"); const iu = new URL(candidate.startsWith("//") ? "https:"+candidate : candidate); if(iu.protocol==="https:" && (iu.hostname.endsWith("ltwebstatic.com") || iu.hostname.endsWith("shein.com"))) image=iu.toString(); } catch {} }
+  const priceMatch = chunk.match(/R\\$\\s*([0-9][0-9.,]*)/i);
+  let price: number | null = null;
+  if (priceMatch) { const rawPrice=priceMatch[1]; const normalized=rawPrice.includes(",")?rawPrice.replace(/\\./g,"").replace(",","."):rawPrice; const n=Number(normalized); if(Number.isFinite(n)&&n>0&&n<100000) price=n; }
+  const salesMatch = chunk.match(/([0-9][0-9.,]*\\s*[kK]?\\+?)\\s*(?:vendidos?|vendido)/i);
+  out.set(idMatch[1], {shein_product_id:idMatch[1],title,product_url:href,image_url:image,price,sales_text:salesMatch?.[1]?.trim()||null,source_url:source});
+ }
+ return [...out.values()];
 }
 Deno.serve(async(req:Request)=>{
  if(req.method==="OPTIONS") return new Response("ok",{headers});
