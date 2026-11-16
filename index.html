@@ -2270,7 +2270,7 @@ footer a{color:#f4d78e!important}
 </footer>
 
 <script>
-(() => {
+(async () => {
   const busca = document.getElementById('busca');
   const limparBusca = document.getElementById('limpar-busca');
   const grade = document.getElementById('grade-produtos');
@@ -2279,6 +2279,66 @@ footer a{color:#f4d78e!important}
   const contador = document.getElementById('contador');
   const vazio = document.getElementById('sem-resultados');
   if (!busca || !grade || !contador || !vazio) return;
+
+  // MARQ-DYNAMIC-CATALOG-V1: novos produtos ativos do painel entram na vitrine automaticamente.
+  const MARQ_SUPABASE_URL = 'https://zonclgsfqtylnedxigxd.supabase.co';
+  const MARQ_PUBLIC_KEY = 'sb_publishable_7Oi8lKwThZ2kKQUVxUT-oQ_3O-4_mSK';
+  const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const normalizarCategoria = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  const categoriaProduto = (categoria, nome) => {
+    const c = normalizarCategoria(categoria), n = normalizarCategoria(nome);
+    if (c.includes('casa') || c.includes('cozinha') || /cozinha|decoracao|organizacao|lixeira|cama|mesa|banho/.test(n)) return 'casa';
+    if (c.includes('moda') || /chapeu|roupa|vestido|camisa|calca|sapato|bolsa|acessorio|joia|biju/.test(n)) return 'moda';
+    if (c.includes('beleza') || /maquiagem|perfume|cabelo|skincare|creme|serum|mascara de cilios/.test(n)) return 'beleza';
+    if (c.includes('eletron') || /fone|celular|carregador|cabo|bluetooth|smartwatch|eletron/.test(n)) return 'eletronicos';
+    if (c.includes('esporte') || /academia|fitness|bola|treino|corrida|bicicleta/.test(n)) return 'esportes';
+    if (c.includes('pet') || /cachorro|gato|pet|coleira|racao/.test(n)) return 'pets';
+    return 'achadinhos';
+  };
+  try {
+    const response = await fetch(MARQ_SUPABASE_URL + '/rest/v1/produtos?select=id,nome,preco,categoria,link_afiliado,ativo,Imagem,image_url&ativo=eq.true&link_afiliado=not.is.null&order=created_at.desc&limit=1000', {
+      headers: { apikey: MARQ_PUBLIC_KEY, Authorization: 'Bearer ' + MARQ_PUBLIC_KEY },
+      cache: 'no-store'
+    });
+    if (!response.ok) throw new Error('Catálogo dinâmico: HTTP ' + response.status);
+    const rows = await response.json();
+    const existingIds = new Set(Array.from(grade.querySelectorAll(':scope > .card')).map(card => String(card.dataset.productId || '')));
+    rows.forEach(product => {
+      const id = String(product.id || '');
+      const affiliate = String(product.link_afiliado || '');
+      if (!id || !affiliate || existingIds.has(id)) return;
+      let affiliateHost = '';
+      try { affiliateHost = new URL(affiliate).hostname.toLowerCase(); } catch (_) { return; }
+      if (!affiliate.startsWith('https://')) return;
+      const platform = affiliateHost.includes('shein') ? 'shein' : (affiliateHost.includes('meli') || affiliateHost.includes('mercadolivre') ? 'mercadolivre' : 'parceiro');
+      const category = categoriaProduto(product.categoria, product.nome);
+      const title = String(product.nome || ('Oferta #' + id));
+      const image = String(product.image_url || product.Imagem || '');
+      const detailUrl = './produto.html?id=' + encodeURIComponent(id);
+      const price = product.preco == null || product.preco === '' ? 'Consulte o anúncio' : Number(product.preco).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+      const imageMarkup = image
+        ? '<img src="' + escapeHtml(image) + '" alt="' + escapeHtml(title) + '" loading="lazy" referrerpolicy="no-referrer">'
+        : '<div class="product-placeholder" role="img" aria-label="Foto original ainda não disponível"><span>' + escapeHtml(platform.toUpperCase()) + '</span><b>OFERTA NOVA</b><small>Foto em atualização</small></div>';
+      const card = document.createElement('article');
+      card.className = 'card';
+      card.dataset.category = category;
+      card.dataset.platform = platform;
+      card.dataset.productId = id;
+      card.dataset.marqDynamic = 'true';
+      card.dataset.tags = 'achadinhos ' + platform + ' ' + category + ' ' + normalizarCategoria(title);
+      card.innerHTML =
+        '<a class="produto-imagem-link" href="' + detailUrl + '" aria-label="Ver detalhes de ' + escapeHtml(title) + '">' + imageMarkup + '</a>' +
+        '<div class="info"><h3><a class="produto-titulo-link" href="' + detailUrl + '">' + escapeHtml(title) + '</a></h3>' +
+        '<span class="sold">' + escapeHtml(platform.toUpperCase()) + ' · OFERTA CADASTRADA</span>' +
+        '<div class="preco">' + escapeHtml(price) + '<small>Preço informado no cadastro; sujeito a alteração</small></div>' +
+        '<a class="detalhes-link" href="' + detailUrl + '">VER PRODUTO E DETALHES</a>' +
+        '<a class="botao" href="' + escapeHtml(affiliate) + '" target="_blank" rel="sponsored noopener noreferrer">COMPRAR AGORA</a></div>';
+      grade.appendChild(card);
+      existingIds.add(id);
+    });
+  } catch (error) {
+    console.warn('[MarQ] Não foi possível carregar o catálogo automático:', error);
+  }
 
   const cards = Array.from(grade.querySelectorAll(':scope > .card'));
   // Imagens externas contam como fotos; ilustrações genéricas e cartões-placeholder não.
@@ -2390,7 +2450,7 @@ footer a{color:#f4d78e!important}
       // Sem busca, a vitrine mostra somente fotos reais.
       // Ao pesquisar, todos os produtos correspondentes continuam acessíveis.
       const mostrar = correspondeCategoria && correspondeBusca &&
-        (termos.length > 0 || temFotoReal);
+        (termos.length > 0 || temFotoReal || card.dataset.marqDynamic === 'true');
       card.hidden = !mostrar;
       if (mostrar) visiveis += 1;
     });
