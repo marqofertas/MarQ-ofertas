@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "MarQ SHEIN Bridge",
+  "version": "1.0.0",
+  "description": "Envia dados de produtos SHEIN selecionados para o painel MarQ. O link de afiliado é informado pelo usuário.",
+  "permissions": ["tabs"],
+  "host_permissions": [
+    "https://*.shein.com/*",
+    "https://*.shein.*/*",
+    "https://marqofertas.github.io/MarQ-ofertas/*"
+  ],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": ["https://*.shein.com/*", "https://*.shein.*/ *"],
+      "js": ["shein.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://marqofertas.github.io/MarQ-ofertas/admin.html*"],
+      "js": ["admin-bridge.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": { "default_title": "MarQ SHEIN Bridge", "default_popup": "popup.html" }
+}
