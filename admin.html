@@ -86,12 +86,17 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
     <div class="metric"><div class="metric-top"><span>Sem cliques</span><i class="metric-icon">◌</i></div><strong id="productNoClicks">—</strong><small>No período selecionado</small></div>
     <div class="metric"><div class="metric-top"><span>Links cadastrados</span><i class="metric-icon">⌁</i></div><strong id="productLinks">—</strong><small>Links de afiliado disponíveis</small></div>
    </div>
-<article class="card" style="margin-bottom:16px;border-color:#d6ad58">
-    <div class="table-head"><div><h2>Importar oferta da SHEIN</h2><p class="sub">Cole aqui o texto completo copiado pelo botão Ganhar no painel de afiliados. O MarQ identifica o título, preço e seu link exclusivo.</p></div><span class="pill good">SHEIN</span></div>
-    <label class="field full">Texto copiado da SHEIN<textarea id="sheinAffiliateText" rows="6" placeholder="Cole aqui a legenda completa, incluindo o link onelink.shein.com..." style="display:block;width:100%;margin-top:6px;border:1px solid var(--line);border-radius:10px;padding:12px;font:13px/1.5 inherit;resize:vertical"></textarea></label>
-    <div class="form-actions"><button class="btn secondary" id="sheinClipboardBtn" type="button">Ler texto copiado</button><button class="btn" id="sheinPreviewBtn" type="button">Identificar oferta</button><button class="btn dark" id="sheinImportBtn" type="button" disabled>＋ Cadastrar na MarQ</button></div>
-    <div class="notice" id="sheinImportPreview" style="margin-top:12px"><i>i</i><div><b>Aguardando texto</b>Cole o conteúdo copiado pelo botão Ganhar para conferir os dados antes de cadastrar.</div></div>
-    <p class="hint">Ao cadastrar, o produto entra automaticamente na vitrine pública e ganha uma página própria, sem precisar editar o site manualmente. A MarQ também tenta localizar a foto original na SHEIN; se a foto não estiver disponível, a oferta aparece com um aviso até você vinculá-la.</p>
+<article class="card" style="margin-bottom:16px;border:2px solid #d6ad58">
+    <div class="table-head"><div><h2>Importar oferta da SHEIN</h2><p class="sub">No Centro de Afiliados, toque em Ganhar e copie a mensagem. Se ela vier incompleta, preencha os campos abaixo manualmente.</p></div><span class="pill good">SHEIN</span></div>
+    <label class="field full">Mensagem completa copiada da SHEIN<textarea id="sheinAffiliateText" rows="5" placeholder="Cole aqui a mensagem do botão Ganhar. Também pode colar somente o link de afiliado e preencher os campos abaixo." style="display:block;width:100%;margin-top:6px;border:1px solid var(--line);border-radius:10px;padding:12px;font:13px/1.5 inherit;resize:vertical"></textarea></label>
+    <div class="form-grid">
+     <label class="field">Nome do produto<input id="sheinManualTitle" type="text" placeholder="Ex.: Vestido feminino"></label>
+     <label class="field">Preço atual (R$)<input id="sheinManualPrice" type="text" inputmode="decimal" placeholder="Ex.: 49,90"></label>
+     <label class="field full">Seu link de afiliado SHEIN<input id="sheinManualLink" type="url" inputmode="url" placeholder="https://onelink.shein.com/..."></label>
+    </div>
+    <div class="form-actions"><button class="btn secondary" id="sheinClipboardBtn" type="button">Ler texto copiado</button><button class="btn" id="sheinPreviewBtn" type="button">Conferir oferta</button><button class="btn dark" id="sheinImportBtn" type="button" disabled>＋ Cadastrar na MarQ</button><a class="btn secondary" href="https://m.shein.com/br/affiliate" target="_blank" rel="noopener">Centro de Afiliados ↗</a></div>
+    <div class="notice" id="sheinImportPreview" style="margin-top:12px"><i>i</i><div><b>Aguardando oferta</b>Cole a mensagem da SHEIN ou informe nome, preço e link oficial de afiliado. Confira tudo antes de publicar.</div></div>
+    <p class="hint">Após cadastrar, a oferta é publicada na vitrine MarQ e ganha uma página própria. A loja tenta localizar a foto original automaticamente. O link precisa ser gerado no Centro de Afiliados da sua conta para atribuir sua comissão.</p>
    </article>
    <article class="card" id="sheinPhotoCard" style="margin:16px 0;border:2px solid #d6ad58">
     <div class="table-head"><div><h2>📸 Fotos pendentes — SHEIN</h2><p class="sub">Encontre e vincule automaticamente a foto original dos produtos que ainda estão sem imagem.</p></div><span class="pill" id="sheinPhotoCount">0 pendentes</span></div>
@@ -528,19 +533,30 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
 
 
  let sheinParsed=null;
+ function parseSheinMoney(value){
+  const cleaned=String(value||'').replace(/R\$/ig,'').replace(/\s/g,'').replace(/[^0-9.,]/g,'');
+  if(!cleaned)return NaN;
+  const normalized=cleaned.includes(',')?cleaned.replace(/\./g,'').replace(',','.'):cleaned;
+  const number=Number(normalized);
+  return Number.isFinite(number)&&number>0?number:NaN;
+ }
  function parseSheinAffiliateText(raw){
   const text=String(raw||'').trim();
-  const linkMatch=text.match(/https?:\/\/onelink\.shein\.com\/[^\s<>"']+/i);
-  const priceMatch=text.match(/(?:Preço|Preco)\s*\[\s*R\$\s*([0-9.,]+)/i);
-  const titleLine=text.split(/\r?\n/).map(x=>x.trim()).find(x=>/^🛒/.test(x));
-  const title=titleLine?titleLine.replace(/^🛒\s*/,'').trim():'';
-  const priceText=priceMatch?priceMatch[1]:'';
-  const price=priceText?Number(priceText.replace(/\./g,'').replace(',','.')):NaN;
-  const link=linkMatch?linkMatch[0].replace(/[),.;]+$/,''):'';
-  if(!link||!/^https:\/\/onelink\.shein\.com\//i.test(link))throw new Error('Não encontrei um link exclusivo onelink.shein.com no texto.');
-  if(!title)throw new Error('Não encontrei a linha do produto iniciada por 🛒. Copie a legenda completa pelo botão Ganhar.');
-  if(!Number.isFinite(price)||price<=0)throw new Error('Não consegui identificar o preço. Confira se a legenda contém “Preço [R$...”');
-  return {title,price,link};
+  const linkMatch=text.match(/https?:\/\/(?:onelink\.shein\.com|shein\.onelink\.me)\/[^\s<>"']+/i);
+  const lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  const titleLine=lines.find(x=>/^🛒/.test(x));
+  const inferredTitle=titleLine?titleLine.replace(/^🛒\s*/,'').trim():lines.find(x=>!/^https?:\/\//i.test(x)&&!/(?:preço|preco|R\$|compartilhe|shein)/i.test(x))||'';
+  const priceMatch=text.match(/(?:Preço|Preco)\s*(?:\[\s*)?R\$\s*([0-9.]+(?:,[0-9]{1,2})?|[0-9]+(?:\.[0-9]{1,2})?)/i)||text.match(/R\$\s*([0-9.]+(?:,[0-9]{1,2})?)/i);
+  const manualTitle=$('sheinManualTitle')?.value.trim()||'';
+  const manualPrice=$('sheinManualPrice')?.value.trim()||'';
+  const manualLink=$('sheinManualLink')?.value.trim()||'';
+  const title=manualTitle||inferredTitle;
+  const price=parseSheinMoney(manualPrice||priceMatch?.[1]||'');
+  const link=(manualLink||linkMatch?.[0]||'').replace(/[),.;]+$/,'');
+  if(!link||!/^https:\/\/(?:onelink\.shein\.com|shein\.onelink\.me)\//i.test(link))throw new Error('Informe o link de afiliado gerado no Centro de Afiliados (onelink.shein.com).');
+  if(!title)throw new Error('Informe o nome do produto no campo Nome do produto.');
+  if(!Number.isFinite(price)||price<=0)throw new Error('Informe o preço atual no campo Preço atual (R$), por exemplo 49,90.');
+  return {title:title.slice(0,180),price,link};
  }
  $('sheinClipboardBtn').addEventListener('click',async()=>{
   const btn=$('sheinClipboardBtn');btn.disabled=true;
@@ -557,7 +573,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
   const box=$('sheinImportPreview'),btn=$('sheinImportBtn');
   try{
    sheinParsed=parseSheinAffiliateText($('sheinAffiliateText').value);
-   box.innerHTML='<i>✓</i><div><b>'+safe(sheinParsed.title)+'</b>Preço identificado: '+money(sheinParsed.price)+'<br><span style="overflow-wrap:anywhere">'+safe(sheinParsed.link)+'</span><br>Confira se o link pertence à sua conta antes de cadastrar.</div>';
+   box.innerHTML='<i>✓</i><div><b>'+safe(sheinParsed.title)+'</b>Preço: '+money(sheinParsed.price)+'<br><span style="overflow-wrap:anywhere">'+safe(sheinParsed.link)+'</span><br>Confira se o link pertence à sua conta antes de cadastrar.</div>';
    btn.disabled=false;
   }catch(e){sheinParsed=null;btn.disabled=true;box.innerHTML='<i>!</i><div><b>Não foi possível identificar a oferta</b>'+safe(e.message)+'</div>'}
  });
