@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#64101f"><meta name="description" content="Assistente inteligente da MarQ Ofertas">
+<link rel="manifest" href="./marq-ai.webmanifest"><link rel="icon" href="./icons/painel-192.svg">
+<title>MarQ IA — Central inteligente</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:#302326;background:#fbf9f7;--red:#64101f;--red2:#8f1728;--gold:#d6ad58;--cream:#fff9ed;--line:#eadfc9}
+*{box-sizing:border-box}body{margin:0}button,input{font:inherit}.hidden{display:none!important}
+header{background:var(--red);color:white;padding:15px max(16px,calc((100% - 980px)/2));display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0}
+.brand{display:flex;align-items:center;gap:10px;font-weight:950}.mark{width:38px;height:38px;border-radius:12px;background:var(--gold);color:var(--red);display:grid;place-items:center;font-size:22px}
+header small{display:block;color:var(--cream);font-size:9px;letter-spacing:2px}
+header button{border:1px solid #ffffff55;background:transparent;color:white;border-radius:9px;padding:9px 12px;font-weight:800}
+main{max-width:980px;margin:25px auto;padding:0 15px}
+.hero{background:linear-gradient(120deg,var(--red),var(--red2));color:white;border-radius:20px;padding:23px;margin-bottom:16px}
+.hero h1{margin:0 0 8px;font-size:26px}.hero p{margin:0;color:var(--cream);line-height:1.55;font-size:14px}
+.tools{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.quick{border:1px solid var(--line);background:white;border-radius:13px;padding:13px;text-align:left;color:var(--red);font-weight:850;min-height:78px}
+.quick span{display:block;color:#806c6b;font-size:11px;font-weight:500;margin-top:5px}
+.chat{background:white;border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.messages{padding:16px;min-height:290px;max-height:55vh;overflow:auto;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:88%;padding:12px 14px;border-radius:14px;line-height:1.55;font-size:14px;white-space:pre-wrap}
+.bot{background:var(--cream);align-self:flex-start;color:#4b252b}.user{background:var(--red);color:white;align-self:flex-end}
+.composer{border-top:1px solid var(--line);padding:12px;display:flex;gap:9px}
+.composer input{min-width:0;flex:1;border:1px solid var(--line);border-radius:12px;padding:13px;outline-color:var(--gold)}
+.send{border:0;border-radius:12px;background:var(--gold);color:var(--red);font-weight:900;padding:0 18px}
+.note{font-size:11px;color:#806c6b;line-height:1.55;margin:12px 2px}
+.login{max-width:400px;margin:12vh auto;background:white;border:1px solid var(--line);border-radius:18px;padding:22px}
+.login h2{color:var(--red);margin-top:0}.login input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;margin:7px 0 12px}
+.primary{width:100%;border:0;border-radius:10px;background:var(--red);color:white;padding:13px;font-weight:900}
+.status{font-size:12px;color:#8f1728;min-height:20px}
+@media(max-width:600px){.tools{grid-template-columns:1fr}.quick{min-height:unset}.messages{max-height:56vh}.msg{max-width:95%}}
+</style></head><body>
+<header><div class="brand"><div class="mark">✦</div><div>MarQ IA<small>INTELIGÊNCIA PARA OFERTAS</small></div></div><button id="logout" class="hidden">Sair</button></header>
+<section id="login" class="login"><h2>Entrar na MarQ IA</h2><p style="font-size:13px;color:#806c6b">Use o mesmo acesso administrativo do painel MarQ.</p><form id="loginForm"><label>E-mail</label><input id="email" type="email" autocomplete="username" required><label>Senha</label><input id="password" type="password" autocomplete="current-password" required><button class="primary" id="loginButton">Entrar</button></form><p id="loginStatus" class="status"></p></section>
+<main id="app" class="hidden">
+<section class="hero"><h1>Sua central inteligente começou.</h1><p>Analiso oportunidades, ajudo a escolher produtos e preparo anúncios para a MarQ. A publicação continua protegida por validação e limite de 1 produto por hora.</p></section>
+<div class="tools">
+<button class="quick" data-prompt="Analise o catálogo atual da MarQ e diga quais produtos merecem atenção, sem inventar vendas ou comissões.">✦ Analisar catálogo<span>Oportunidades e prioridades</span></button>
+<button class="quick" data-prompt="Crie um padrão de título e descrição persuasiva para os próximos produtos da MarQ, sem inventar características.">✎ Melhorar anúncios<span>Títulos e descrições</span></button>
+<button class="quick" data-prompt="Monte um plano prático para melhorar as vendas da MarQ Ofertas nos próximos 7 dias usando os dados disponíveis.">↗ Plano de crescimento<span>Próximas ações</span></button>
+</div>
+<section class="chat"><div id="messages" class="messages"><div class="msg bot">Olá! Sou a inteligência da MarQ Ofertas. Posso analisar o catálogo e ajudar a preparar os próximos passos. Ainda não publico nada sem validação.</div></div><form id="chatForm" class="composer"><input id="prompt" maxlength="3000" placeholder="Pergunte algo para a IA da MarQ..." autocomplete="off" required><button class="send" id="send">Enviar</button></form></section>
+<p class="note">A IA não inventa preço, comissão, vendas ou disponibilidade. A chave do provedor fica no servidor, nunca neste aplicativo. A publicação automática será ativada somente depois de testar a análise, a origem dos links afiliados e as regras de segurança.</p>
+<p id="appStatus" class="status"></p>
+</main>
+<script>
+(()=>{const URL='https://zonclgsfqtylnedxigxd.supabase.co',KEY='sb_publishable_7Oi8lKwThZ2kKQUVxUT-oQ_3O-4_mSK',ADMIN='89fdb1b1-c59d-4928-8b7d-8e604046d456';const db=window.supabase.createClient(URL,KEY);const $=id=>document.getElementById(id);let products=[];
+function add(text,who){const d=document.createElement('div');d.className='msg '+(who==='user'?'user':'bot');d.textContent=text;$('messages').appendChild(d);$('messages').scrollTop=$('messages').scrollHeight;return d}
+async function enter(user){if(!user||user.id!==ADMIN){await db.auth.signOut();$('loginStatus').textContent='Conta sem autorização administrativa.';return}$('login').classList.add('hidden');$('app').classList.remove('hidden');$('logout').classList.remove('hidden');const {data,error}=await db.from('produtos').select('id,nome,preco,preco_anterior,categoria,ativo,link_afiliado').eq('ativo',true).limit(60);if(!error)products=data||[]}
+$('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginButton').disabled=true;$('loginStatus').textContent='Validando...';const {data,error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});$('loginButton').disabled=false;if(error){$('loginStatus').textContent='Falha no login: '+error.message;return}await enter(data.user)});
+$('logout').addEventListener('click',async()=>{await db.auth.signOut();location.reload()});db.auth.onAuthStateChange((_e,s)=>{if(s)enter(s.user);else{$('app').classList.add('hidden');$('login').classList.remove('hidden');$('logout').classList.add('hidden')}});db.auth.getSession().then(({data})=>{if(data.session)enter(data.session.user)});
+async function send(prompt){if(!prompt.trim())return;add(prompt,'user');const box=add('A IA está analisando...','bot');$('send').disabled=true;try{const {data,error}=await db.functions.invoke('marq-ai',{body:{message:prompt,products:products.slice(0,60)}});if(error)throw error;if(data?.error)throw new Error(data.error);box.textContent=data.answer||'A IA não retornou texto.'}catch(e){box.textContent='Não consegui consultar a IA: '+(e.message||String(e))}finally{$('send').disabled=false;$('prompt').focus()}}
+$('chatForm').addEventListener('submit',e=>{e.preventDefault();const p=$('prompt').value;$('prompt').value='';send(p)});document.querySelectorAll('.quick').forEach(b=>b.addEventListener('click',()=>send(b.dataset.prompt)));
+})();
+</script><script>if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./marq-ai-sw.js').catch(()=>{}));</script></body></html>
