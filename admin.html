@@ -159,10 +159,10 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
    <article class="card table-card"><h2>Integridade dos dados</h2><div id="healthList" class="notice-list" style="margin-top:15px"></div></article>
   </section>
   <section class="page" id="page-shein-radar">
-   <div class="page-head"><div><span class="eyebrow">MARQ • RADAR DE TENDÊNCIAS</span><h1>Radar SHEIN</h1><p>Encontre produtos em alta nas listas públicas oficiais e transforme os escolhidos em ofertas com seu link de afiliado.</p></div></div>
+   <div class="page-head"><div><span class="eyebrow">MARQ • RADAR DE TENDÊNCIAS</span><h1>Radar SHEIN</h1><p>Encontre produtos nas listas e na busca pública da SHEIN. Se uma lista bloquear a leitura, o robô tenta a busca pública como alternativa.</p></div></div>
    <article class="card" style="border:2px solid #d6ad58;margin-bottom:14px">
-    <div class="table-head"><div><h2>Robô Garimpeiro SHEIN</h2><p class="sub">Busca automática nos rankings públicos oficiais e salva os produtos encontrados para você trabalhar no painel.</p></div><button class="btn dark" id="sheinBotScan" type="button">✦ Garimpar agora</button></div>
-    <div class="notice" id="sheinBotStatus" style="margin:12px 0"><i>i</i><div><b>Pronto para iniciar</b>O robô consulta os rankings oficiais, identifica produtos e organiza os resultados abaixo.</div></div>
+    <div class="table-head"><div><h2>Robô Garimpeiro SHEIN</h2><p class="sub">Busca automática nos rankings e na página pública de produtos da SHEIN; os resultados são organizados para você validar e adicionar seu link de afiliado.</p></div><button class="btn dark" id="sheinBotScan" type="button">✦ Garimpar agora</button></div>
+    <div class="notice" id="sheinBotStatus" style="margin:12px 0"><i>i</i><div><b>Pronto para iniciar</b>O robô consulta rankings e busca pública da SHEIN, identifica produtos e organiza os resultados abaixo.</div></div>
     <div id="sheinBotResults"><div class="empty">Nenhum garimpo executado nesta sessão.</div></div>
    </article>
    <article class="card" style="border:2px solid #d6ad58;margin-bottom:14px">
@@ -325,7 +325,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
   try{
    const {data,error}=await client.functions.invoke('marq-shein-radar',{body:{action:'scan'}});
    if(error)throw error;if(data?.error)throw new Error(data.error);
-   if(!data.found&&data.errors?.length){sheinBotStatus.innerHTML='<i>!</i><div><b>A SHEIN não liberou os dados para o robô</b>'+safe(data.errors.join(' '))+'</div>';}else{sheinBotStatus.innerHTML='<i>✓</i><div><b>Consulta concluída: '+data.found+' produto(s) encontrados</b>Fontes consultadas: '+data.scanned_sources+'. '+(data.errors?.length?'Algumas listas não responderam.':'Todas as fontes responderam.')+'</div>';}
+   if(!data.found&&data.errors?.length){sheinBotStatus.innerHTML='<i>!</i><div><b>Nenhum produto foi identificado nas fontes públicas</b>'+safe(data.errors.join(' '))+'</div>';}else{sheinBotStatus.innerHTML='<i>✓</i><div><b>Consulta concluída: '+data.found+' produto(s) encontrados</b>Fontes consultadas: '+data.scanned_sources+'. '+(data.errors?.length?'Algumas listas não responderam.':'Todas as fontes responderam.')+'</div>';}
    renderSheinCandidates(data.items||[]);await loadSheinCandidates();
   }catch(e){sheinBotStatus.innerHTML='<i>!</i><div><b>Não foi possível concluir o garimpo</b>'+safe(e.message)+'</div>'}
   finally{b.disabled=false;b.textContent='✦ Garimpar agora'}
