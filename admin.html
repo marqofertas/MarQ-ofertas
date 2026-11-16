@@ -85,6 +85,13 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
     <div class="metric"><div class="metric-top"><span>Sem cliques</span><i class="metric-icon">◌</i></div><strong id="productNoClicks">—</strong><small>No período selecionado</small></div>
     <div class="metric"><div class="metric-top"><span>Links cadastrados</span><i class="metric-icon">⌁</i></div><strong id="productLinks">—</strong><small>Links de afiliado disponíveis</small></div>
    </div>
+<article class="card" style="margin-bottom:16px;border-color:#d6ad58">
+    <div class="table-head"><div><h2>Importar oferta da SHEIN</h2><p class="sub">Cole aqui o texto completo copiado pelo botão Ganhar no painel de afiliados. O MarQ identifica o título, preço e seu link exclusivo.</p></div><span class="pill good">SHEIN</span></div>
+    <label class="field full">Texto copiado da SHEIN<textarea id="sheinAffiliateText" rows="6" placeholder="Cole aqui a legenda completa, incluindo o link onelink.shein.com..." style="display:block;width:100%;margin-top:6px;border:1px solid var(--line);border-radius:10px;padding:12px;font:13px/1.5 inherit;resize:vertical"></textarea></label>
+    <div class="form-actions"><button class="btn secondary" id="sheinClipboardBtn" type="button">Ler texto copiado</button><button class="btn" id="sheinPreviewBtn" type="button">Identificar oferta</button><button class="btn dark" id="sheinImportBtn" type="button" disabled>＋ Cadastrar na MarQ</button></div>
+    <div class="notice" id="sheinImportPreview" style="margin-top:12px"><i>i</i><div><b>Aguardando texto</b>Cole o conteúdo copiado pelo botão Ganhar para conferir os dados antes de cadastrar.</div></div>
+    <p class="hint">Nesta primeira etapa, o cadastro aproveita o link individual gerado pela sua conta. A foto não é inventada: será necessário adicioná-la pelo painel de fotos quando não vier disponível na origem. A busca e geração de links em lote ainda dependem de uma conexão SHEIN autorizada e validada.</p>
+   </article>
    <article class="card table-card" style="margin-top:16px">
     <div class="table-head"><div><h2>Conectar conta do Mercado Livre</h2><p class="sub">A API oficial exige autorização da sua conta para consultar preços com segurança.</p></div><span class="pill" id="mlConnectionStatus">Não conectado</span></div>
     <div class="form-grid">
@@ -149,13 +156,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
     <div class="metric"><div class="metric-top"><span>Publicadas</span><i class="metric-icon">✓</i></div><strong id="gPublished">0</strong><small>Enviadas para a vitrine</small></div>
     <div class="metric"><div class="metric-top"><span>Desconto médio</span><i class="metric-icon">%</i></div><strong id="gDiscount">—</strong><small>Das ofertas na fila</small></div>
    </div>
-   <article class="card" style="margin-bottom:16px;border-color:#d6ad58">
-    <div class="table-head"><div><h2>Importar oferta da SHEIN</h2><p class="sub">Cole aqui o texto completo copiado pelo botão Ganhar no painel de afiliados. O MarQ identifica o título, preço e seu link exclusivo.</p></div><span class="pill good">SHEIN</span></div>
-    <label class="field full">Texto copiado da SHEIN<textarea id="sheinAffiliateText" rows="6" placeholder="Cole aqui a legenda completa, incluindo o link onelink.shein.com..." style="display:block;width:100%;margin-top:6px;border:1px solid var(--line);border-radius:10px;padding:12px;font:13px/1.5 inherit;resize:vertical"></textarea></label>
-    <div class="form-actions"><button class="btn secondary" id="sheinClipboardBtn" type="button">Ler texto copiado</button><button class="btn" id="sheinPreviewBtn" type="button">Identificar oferta</button><button class="btn dark" id="sheinImportBtn" type="button" disabled>＋ Cadastrar na MarQ</button></div>
-    <div class="notice" id="sheinImportPreview" style="margin-top:12px"><i>i</i><div><b>Aguardando texto</b>Cole o conteúdo copiado pelo botão Ganhar para conferir os dados antes de cadastrar.</div></div>
-    <p class="hint">Nesta primeira etapa, o cadastro aproveita o link individual gerado pela sua conta. A foto não é inventada: será necessário adicioná-la pelo painel de fotos quando não vier disponível na origem. A busca e geração de links em lote ainda dependem de uma conexão SHEIN autorizada e validada.</p>
-   </article>
+   
    <article class="card" style="margin-bottom:16px">
     <h2>Buscar ofertas no Mercado Livre</h2><p class="sub">A busca consulta a API do Mercado Livre. Se ela pedir autorização, conecte sua conta na Visão geral do painel. Só entram na fila itens com preço anterior e desconto calculável.</p>
     <form id="garimpoSearchForm" class="form-grid">
