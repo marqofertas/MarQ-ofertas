@@ -10,12 +10,10 @@ const headers = { "Content-Type":"application/json", "Access-Control-Allow-Origi
 const json = (data: unknown, status=200) => new Response(JSON.stringify(data), {status,headers});
 const sources = [
  "https://br.shein.com/trends/best-sellers-sc-006118818.html",
- "https://br.shein.com/shein-picks.html"
+ "https://br.shein.com/shein-picks.html",
+ "https://br.shein.com/pdsearch/produtos/"
 ];
 const clean = (s:string) => s.replace(/<script\b[\s\S]*?<\/script>/gi," ").replace(/<style\b[\s\S]*?<\/style>/gi," ").replace(/<[^>]*>/g," ").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&#(\d+);/g,(_,n)=>String.fromCharCode(Number(n))).replace(/\s+/g," ").trim();
-function decodeEntities(s:string) {
- return s.replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&#(\d+);/g,(_,n)=>String.fromCharCode(Number(n)));
-}
 function decodeEntities(s:string) {
  return s.replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&#(\d+);/g,(_,n)=>String.fromCharCode(Number(n)));
 }
