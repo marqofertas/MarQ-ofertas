@@ -2,7 +2,7 @@
   if (window.__marqSheinBridgeInstalled) return;
   window.__marqSheinBridgeInstalled = true;
 
-  const clean = value => String(value || "").replace(/\\s+/g, " ").trim();
+  const clean = value => String(value || "").replace(/\s+/g, " ").trim();
   const meta = (...selectors) => {
     for (const selector of selectors) {
       const el = document.querySelector(selector);
