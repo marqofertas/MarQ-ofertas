@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "MarQ Conecta SHEIN",
+  "version": "0.1.0",
+  "description": "Captura dados visíveis de um produto SHEIN e prepara o texto para importar na MarQ Ofertas.",
+  "minimum_chrome_version": "111",
+  "permissions": ["activeTab", "clipboardWrite"],
+  "host_permissions": ["https://*.shein.com/*", "https://shein.com/*"],
+  "action": {
+    "default_title": "MarQ Conecta SHEIN",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.shein.com/*", "https://shein.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
