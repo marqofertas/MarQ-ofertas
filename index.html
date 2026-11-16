@@ -2926,7 +2926,9 @@ if ("serviceWorker" in navigator) {
     }
     const checked=document.createElement('small');checked.style.cssText='display:block;color:#806c6b;font-size:9px;font-weight:500;margin-top:4px';checked.textContent='Consultado em '+new Date(item.preco_verificado_em).toLocaleDateString('pt-BR');price.append(checked);
    }else if(item.status_preco==='revisar'){
-    const note=document.createElement('small');note.style.cssText='display:block;color:#806c6b;font-size:9px;font-weight:600;margin-top:4px';note.textContent='Confirme o valor no anúncio';price.append(note);
+    price.replaceChildren();
+    const pending=document.createElement('strong');pending.textContent='Preço pendente';price.append(pending);
+    const note=document.createElement('small');note.style.cssText='display:block;color:#806c6b;font-size:10px;font-weight:600;margin-top:4px';note.textContent='Valor não confirmado — confira no anúncio';price.append(note);
    }
   });
  }catch(e){console.warn('[MarQ] Não foi possível sincronizar os preços verificados:',e)}
@@ -2937,7 +2939,7 @@ if ("serviceWorker" in navigator) {
 <script id="marq-dynamic-shein-products">
 /* MARQ-SHEIN-DYNAMIC-CATALOG-V1 — inclui no catálogo os produtos SHEIN ativos do Supabase */
 (async()=>{
- const endpoint='https://zonclgsfqtylnedxigxd.supabase.co/rest/v1/produtos?select=id,nome,preco,categoria,link_afiliado,image_url,Imagem,ativo&id=gt.0&ativo=eq.true&categoria=eq.SHEIN&order=created_at.desc&limit=100';
+ const endpoint='https://zonclgsfqtylnedxigxd.supabase.co/rest/v1/produtos?select=id,nome,preco,categoria,link_afiliado,image_url,Imagem,ativo,status_preco&id=gt.0&ativo=eq.true&categoria=eq.SHEIN&order=created_at.desc&limit=100';
  const key='sb_publishable_7Oi8lKwThZ2kKQUVxUT-oQ_3O-4_mSK';
  const grid=document.getElementById('grade-produtos'); if(!grid)return;
  const safe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -2953,7 +2955,7 @@ if ("serviceWorker" in navigator) {
    const title=p.nome||'Oferta SHEIN',url=p.link_afiliado,img=p.image_url||p.Imagem||'';
    const card=document.createElement('article');card.className='card';card.dataset.platform='shein';card.dataset.category='moda';card.dataset.productId=String(p.id);card.dataset.tags='shein moda '+title.toLocaleLowerCase('pt-BR');
    const image=img?'<img src="'+safe(img)+'" alt="'+safe(title)+'" loading="lazy" referrerpolicy="no-referrer">':'<div class="product-placeholder" role="img" aria-label="Imagem do anúncio ainda não sincronizada"><span>SHEIN</span><b>OFERTA NOVA</b><small>Foto do anúncio em sincronização</small></div>';
-   card.innerHTML='<a class="produto-imagem-link" href="'+safe(url)+'" target="_blank" rel="sponsored noopener noreferrer" aria-label="Abrir '+safe(title)+'">'+image+'</a><div class="info"><h3><a class="produto-titulo-link" href="'+safe(url)+'" target="_blank" rel="sponsored noopener noreferrer">'+safe(title)+'</a></h3><span class="sold">OFERTA SHEIN</span><div class="preco">'+money(p.preco)+'</div><a class="detalhes-link" href="'+safe(url)+'" target="_blank" rel="sponsored noopener noreferrer">VER OFERTA NA SHEIN</a><a class="botao" href="'+safe(url)+'" target="_blank" rel="sponsored noopener noreferrer">COMPRAR NA SHEIN</a></div>';
+   card.innerHTML='<a class="produto-imagem-link" href="'+safe(url)+'" target="_blank" rel="sponsored noopener noreferrer" aria-label="Abrir '+safe(title)+'">'+image+'</a><div class="info"><h3><a class="produto-titulo-link" href="'+safe(url)+'" target="_blank" rel="sponsored noopener noreferrer">'+safe(title)+'</a></h3><span class="sold">OFERTA SHEIN</span><div class="preco">'+(p.status_preco==='verificado'?money(p.preco):'Preço pendente de confirmação')+'</div><a class="detalhes-link" href="'+safe(url)+'" target="_blank" rel="sponsored noopener noreferrer">VER OFERTA NA SHEIN</a><a class="botao" href="'+safe(url)+'" target="_blank" rel="sponsored noopener noreferrer">COMPRAR NA SHEIN</a></div>';
    grid.prepend(card);
    existing.add(norm(url));
   });
