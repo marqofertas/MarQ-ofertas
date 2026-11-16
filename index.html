@@ -2933,5 +2933,34 @@ if ("serviceWorker" in navigator) {
 })();
 </script>
 
+
+<script id="marq-dynamic-shein-products">
+/* MARQ-SHEIN-DYNAMIC-CATALOG-V1 — inclui no catálogo os produtos SHEIN ativos do Supabase */
+(async()=>{
+ const endpoint='https://zonclgsfqtylnedxigxd.supabase.co/rest/v1/produtos?select=id,nome,preco,categoria,link_afiliado,image_url,Imagem,ativo&id=gt.0&ativo=eq.true&categoria=eq.SHEIN&order=created_at.desc&limit=100';
+ const key='sb_publishable_7Oi8lKwThZ2kKQUVxUT-oQ_3O-4_mSK';
+ const grid=document.getElementById('grade-produtos'); if(!grid)return;
+ const safe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const money=v=>Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+ const norm=v=>{try{const u=new URL(v,location.href);return(u.origin.toLowerCase()+u.pathname).replace(/\/$/,'')}catch(e){return String(v||'').trim()}};
+ try{
+  const res=await fetch(endpoint,{headers:{apikey:key,Authorization:'Bearer '+key},cache:'no-store'});
+  if(!res.ok)throw new Error('HTTP '+res.status);
+  const rows=await res.json();
+  const existing=new Set([...grid.querySelectorAll('a.botao[href]')].map(a=>norm(a.href)));
+  rows.forEach(p=>{
+   if(!p.link_afiliado||existing.has(norm(p.link_afiliado)))return;
+   const title=p.nome||'Oferta SHEIN',url=p.link_afiliado,img=p.image_url||p.Imagem||'';
+   const card=document.createElement('article');card.className='card';card.dataset.platform='shein';card.dataset.category='moda';card.dataset.productId=String(p.id);card.dataset.tags='shein moda '+title.toLocaleLowerCase('pt-BR');
+   const image=img?'<img src="'+safe(img)+'" alt="'+safe(title)+'" loading="lazy" referrerpolicy="no-referrer">':'<div class="product-placeholder" role="img" aria-label="Imagem do anúncio ainda não sincronizada"><span>SHEIN</span><b>OFERTA NOVA</b><small>Foto do anúncio em sincronização</small></div>';
+   card.innerHTML='<a class="produto-imagem-link" href="'+safe(url)+'" target="_blank" rel="sponsored noopener noreferrer" aria-label="Abrir '+safe(title)+'">'+image+'</a><div class="info"><h3><a class="produto-titulo-link" href="'+safe(url)+'" target="_blank" rel="sponsored noopener noreferrer">'+safe(title)+'</a></h3><span class="sold">OFERTA SHEIN</span><div class="preco">'+money(p.preco)+'</div><a class="detalhes-link" href="'+safe(url)+'" target="_blank" rel="sponsored noopener noreferrer">VER OFERTA NA SHEIN</a><a class="botao" href="'+safe(url)+'" target="_blank" rel="sponsored noopener noreferrer">COMPRAR NA SHEIN</a></div>';
+   grid.prepend(card);
+   existing.add(norm(url));
+  });
+  const count=document.getElementById('contador');if(count){const n=grid.querySelectorAll('.card:not([hidden])').length;count.textContent=n+(n===1?' oferta encontrada':' ofertas encontradas')}
+ }catch(e){console.warn('[MarQ] Falha ao carregar produtos SHEIN do cadastro:',e)}
+})();
+</script>
+
 </body>
 </html>
