@@ -277,7 +277,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
   try{
    const {data,error}=await client.functions.invoke('marq-shein-radar',{body:{action:'scan'}});
    if(error)throw error;if(data?.error)throw new Error(data.error);
-   sheinBotStatus.innerHTML='<i>✓</i><div><b>Consulta concluída: '+data.found+' produto(s) encontrados</b>Fontes consultadas: '+data.scanned_sources+'. '+(data.errors?.length?'Algumas listas não responderam.':'Todas as fontes responderam.')+'</div>';
+   if(!data.found&&data.errors?.length){sheinBotStatus.innerHTML='<i>!</i><div><b>A SHEIN não liberou os dados para o robô</b>'+safe(data.errors.join(' '))+'</div>';}else{sheinBotStatus.innerHTML='<i>✓</i><div><b>Consulta concluída: '+data.found+' produto(s) encontrados</b>Fontes consultadas: '+data.scanned_sources+'. '+(data.errors?.length?'Algumas listas não responderam.':'Todas as fontes responderam.')+'</div>';}
    renderSheinCandidates(data.items||[]);await loadSheinCandidates();
   }catch(e){sheinBotStatus.innerHTML='<i>!</i><div><b>Não foi possível concluir o garimpo</b>'+safe(e.message)+'</div>'}
   finally{b.disabled=false;b.textContent='✦ Garimpar agora'}
