@@ -557,6 +557,18 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
  });
 
 
+
+ window.addEventListener('message',event=>{
+  if(event.source!==window||event.origin!==location.origin||event.data?.source!=='MARQ_SHEIN_EXTENSION')return;
+  const offer=event.data.offer||{};
+  if(typeof offer.title!=='string'||typeof offer.affiliateUrl!=='string')return;
+  $('sheinManualTitle').value=offer.title.slice(0,180);
+  $('sheinManualPrice').value=Number(offer.price)>0?Number(offer.price).toFixed(2).replace('.',','):'';
+  $('sheinManualLink').value=offer.affiliateUrl;
+  $('sheinAffiliateText').value='';
+  $('sheinPreviewBtn').click();
+  toast('Produto recebido da extensão. Confira os dados antes de cadastrar.');
+ });
  let sheinParsed=null;
  function parseSheinMoney(value){
   const cleaned=String(value||'').replace(/R\$/ig,'').replace(/\s/g,'').replace(/[^0-9.,]/g,'');
