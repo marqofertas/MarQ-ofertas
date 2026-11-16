@@ -161,6 +161,11 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
   <section class="page" id="page-shein-radar">
    <div class="page-head"><div><span class="eyebrow">MARQ • RADAR DE TENDÊNCIAS</span><h1>Radar SHEIN</h1><p>Encontre produtos em alta nas listas públicas oficiais e transforme os escolhidos em ofertas com seu link de afiliado.</p></div></div>
    <article class="card" style="border:2px solid #d6ad58;margin-bottom:14px">
+    <div class="table-head"><div><h2>Robô Garimpeiro SHEIN</h2><p class="sub">Busca automática nos rankings públicos oficiais e salva os produtos encontrados para você trabalhar no painel.</p></div><button class="btn dark" id="sheinBotScan" type="button">✦ Garimpar agora</button></div>
+    <div class="notice" id="sheinBotStatus" style="margin:12px 0"><i>i</i><div><b>Pronto para iniciar</b>O robô consulta os rankings oficiais, identifica produtos e organiza os resultados abaixo.</div></div>
+    <div id="sheinBotResults"><div class="empty">Nenhum garimpo executado nesta sessão.</div></div>
+   </article>
+   <article class="card" style="border:2px solid #d6ad58;margin-bottom:14px">
     <h2>1. Garimpar produtos que já estão vendendo</h2>
     <p class="sub">Atalhos para listas públicas da própria SHEIN. Elas exibem indicadores como posição no ranking, quantidade vendida e descontos anunciados.</p>
     <div class="garimpo-grid">
@@ -185,7 +190,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
     <h2>3. Importar e publicar na MarQ</h2>
     <p class="sub">A importação já está integrada ao painel: identifica o texto, evita duplicados, cadastra o produto e tenta localizar a foto original.</p>
     <button class="btn dark" id="sheinGoImport" type="button" style="margin-top:4px;width:100%">Ir para importar oferta ↓</button>
-    <div class="notice warn" style="margin-top:12px"><i>!</i><div><b>Limite atual da automação</b>O Radar oferece atalhos para listas públicas oficiais. A SHEIN não disponibiliza API pública de afiliados para automatizar a geração dos seus links. Por isso, ainda não existe captura autônoma e publicação sem nenhuma ação sua. Não vamos usar robôs que arrisquem bloquear sua conta.</div></div>
+    <div class="notice" style="margin-top:12px"><i>i</i><div><b>Links rastreáveis</b>O robô encontra e organiza produtos públicos. Para atribuir comissão, o link individual precisa ser gerado no Centro de Afiliados SHEIN. Depois, cole o link no cartão do produto e publique diretamente por aqui.</div></div>
    </article>
   </section>
   <section class="page" id="page-garimpo">
@@ -238,7 +243,46 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
  function showError(msg){$('dashboardStatus').textContent=msg}
  function goPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+name));document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.page===name))}
  document.querySelectorAll('.navbtn').forEach(b=>b.addEventListener('click',()=>goPage(b.dataset.page)));
- $('sheinGoImport').addEventListener('click',()=>{
+ 
+ const sheinBotStatus=$('sheinBotStatus'),sheinBotResults=$('sheinBotResults');
+ function renderSheinCandidates(items){
+  if(!items||!items.length){sheinBotResults.innerHTML='<div class="empty">Nenhum produto foi extraído. A SHEIN pode ter bloqueado a leitura automática das listas nesta consulta.</div>';return}
+  sheinBotResults.innerHTML=items.map(x=>`<div class="notice" style="display:block;margin:10px 0;padding:14px">
+   <div style="display:flex;gap:12px;align-items:flex-start">
+    ${x.image_url?`<img src="${safe(x.image_url)}" alt="" style="width:76px;height:96px;object-fit:cover;border-radius:9px">`:''}
+    <div style="flex:1;min-width:0"><b>${safe(x.title)}</b><div class="sub">ID SHEIN: ${safe(x.shein_product_id)} • ${x.price?money(x.price):'Preço não identificado'}</div><a href="${safe(x.product_url)}" target="_blank" rel="noopener">Ver produto na SHEIN ↗</a>
+    <label class="field full" style="margin-top:9px">Link oficial de afiliado<input data-shein-link="${safe(x.shein_product_id)}" value="${safe(x.affiliate_url||'')}" placeholder="Cole aqui o link onelink gerado no Centro de Afiliados"></label>
+    <button class="btn dark" data-shein-publish="${safe(x.shein_product_id)}" type="button" style="margin-top:8px">${x.status==='published'?'Publicado na MarQ':'Salvar link e publicar'}</button>
+    </div></div></div>`).join('');
+  sheinBotResults.querySelectorAll('[data-shein-publish]').forEach(btn=>btn.addEventListener('click',async()=>{
+   const id=btn.dataset.sheinPublish,field=sheinBotResults.querySelector('[data-shein-link="'+id+'"]'),link=field?.value.trim();
+   if(!link){toast('Cole primeiro o link oficial de afiliado.');return}
+   btn.disabled=true;btn.textContent='Publicando…';
+   try{
+    const saved=await client.functions.invoke('marq-shein-radar',{body:{action:'save_link',shein_product_id:id,affiliate_url:link}});
+    if(saved.error||saved.data?.error)throw new Error(saved.data?.error||saved.error.message);
+    const pub=await client.functions.invoke('marq-shein-radar',{body:{action:'publish',shein_product_id:id}});
+    if(pub.error||pub.data?.error)throw new Error(pub.data?.error||pub.error.message);
+    toast('Produto publicado na MarQ!');await loadSheinCandidates();await loadData();
+   }catch(e){toast('Não foi possível publicar: '+e.message);btn.disabled=false;btn.textContent='Salvar link e publicar'}
+  }));
+ }
+ async function loadSheinCandidates(){
+  const {data,error}=await client.functions.invoke('marq-shein-radar',{body:{action:'list'}});
+  if(error)throw error;if(data?.error)throw new Error(data.error);renderSheinCandidates(data.items||[]);
+ }
+ $('sheinBotScan').addEventListener('click',async()=>{
+  const b=$('sheinBotScan');b.disabled=true;b.textContent='Garimpando…';
+  sheinBotStatus.innerHTML='<i>↻</i><div><b>Consultando rankings SHEIN</b>Isso pode levar alguns segundos.</div>';
+  try{
+   const {data,error}=await client.functions.invoke('marq-shein-radar',{body:{action:'scan'}});
+   if(error)throw error;if(data?.error)throw new Error(data.error);
+   sheinBotStatus.innerHTML='<i>✓</i><div><b>Consulta concluída: '+data.found+' produto(s) encontrados</b>Fontes consultadas: '+data.scanned_sources+'. '+(data.errors?.length?'Algumas listas não responderam.':'Todas as fontes responderam.')+'</div>';
+   renderSheinCandidates(data.items||[]);await loadSheinCandidates();
+  }catch(e){sheinBotStatus.innerHTML='<i>!</i><div><b>Não foi possível concluir o garimpo</b>'+safe(e.message)+'</div>'}
+  finally{b.disabled=false;b.textContent='✦ Garimpar agora'}
+ });
+  $('sheinGoImport').addEventListener('click',()=>{
   goPage('products');
   $('sheinAffiliateText').scrollIntoView({behavior:'smooth',block:'center'});
   setTimeout(()=>$('sheinAffiliateText').focus({preventScroll:true}),350);
