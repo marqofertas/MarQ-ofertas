@@ -562,6 +562,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
   if(event.source!==window||event.origin!==location.origin||event.data?.source!=='MARQ_SHEIN_EXTENSION')return;
   const offer=event.data.offer||{};
   if(typeof offer.title!=='string'||typeof offer.affiliateUrl!=='string')return;
+  sheinCapturedImage=typeof offer.image==='string'&&/^https:\/\//i.test(offer.image)?offer.image:null;
   $('sheinManualTitle').value=offer.title.slice(0,180);
   $('sheinManualPrice').value=Number(offer.price)>0?Number(offer.price).toFixed(2).replace('.',','):'';
   $('sheinManualLink').value=offer.affiliateUrl;
@@ -570,6 +571,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
   toast('Produto recebido da extensão. Confira os dados antes de cadastrar.');
  });
  let sheinParsed=null;
+ let sheinCapturedImage=null;
  function parseSheinMoney(value){
   const cleaned=String(value||'').replace(/R\$/ig,'').replace(/\s/g,'').replace(/[^0-9.,]/g,'');
   if(!cleaned)return NaN;
@@ -621,7 +623,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
    const {data:existing,error:lookupError}=await client.from('produtos').select('id,nome').eq('link_afiliado',sheinParsed.link).maybeSingle();
    if(lookupError)throw lookupError;
    if(existing)throw new Error('Este link já está cadastrado na MarQ como “'+existing.nome+'”.');
-   const payload={nome:sheinParsed.title,preco:sheinParsed.price,categoria:'SHEIN',link_afiliado:sheinParsed.link,Imagem:null,image_url:null,ativo:true,status_preco:'informado_afiliado'};
+   const payload={nome:sheinParsed.title,preco:sheinParsed.price,categoria:'SHEIN',link_afiliado:sheinParsed.link,Imagem:sheinCapturedImage,image_url:sheinCapturedImage,ativo:true,status_preco:'informado_afiliado'};
    const {data:created,error}=await client.from('produtos').insert(payload).select('id').single();
    if(error)throw error;
    $('sheinImportPreview').innerHTML='<i>…</i><div><b>Produto cadastrado</b>Buscando automaticamente a foto original na SHEIN…</div>';
