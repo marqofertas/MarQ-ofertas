@@ -1539,12 +1539,12 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
   <div class="marq-slides">
     <article class="marq-slide is-active marq-slide-gamer" aria-hidden="false">
       <div class="marq-slide-copy">
-        <span class="marq-slide-kicker">✦ EM ALTA NA MARQ</span>
-        <h1>O universo gamer está aqui.</h1>
-        <p>Novidades, acessórios e achadinhos para quem gosta de tecnologia e diversão.</p>
+        <span class="marq-slide-kicker">✦ CURADORIA MARQ OFERTAS</span>
+        <h1>Achadinhos que valem a sua visita.</h1>
+        <p>Uma seleção de produtos para descobrir boas oportunidades em lojas parceiras.</p>
         <a href="#ofertas">EXPLORAR OFERTAS <span aria-hidden="true">→</span></a>
       </div>
-      <div class="marq-slide-art gamer-art" aria-hidden="true"><span class="art-orbit"></span><span class="art-symbol">⌁</span><div class="art-glass"><b>GAME</b><strong>ON</strong><small>PLAY YOUR WAY</small></div><span class="art-chip">TECNOLOGIA • GAMES</span></div>
+      <div class="marq-slide-art gamer-art" aria-hidden="true"><span class="art-orbit"></span><span class="art-symbol">⌁</span><div class="art-glass"><b>MARQ</b><strong>★</strong><small>OFERTAS SELECIONADAS</small></div><span class="art-chip">ACHADOS • OFERTAS</span></div>
     </article>
     <article class="marq-slide marq-slide-home" aria-hidden="true">
       <div class="marq-slide-copy">
@@ -3152,8 +3152,8 @@ nav{background:#64101f!important}
 .brand-name{color:#fff!important;text-shadow:0 2px 8px #30000a99!important;font-weight:950!important;opacity:1!important}
 .brand-name em{color:#ffd84d!important;text-shadow:0 2px 8px #30000a99!important;font-weight:950!important;opacity:1!important}
 </style>
-<script id="marq-products-first-v2">
-(()=>{const move=()=>{const offers=document.getElementById('ofertas'),nav=document.querySelector('nav'),campaign=document.querySelector('.marq-campaigns');if(offers&&nav&&campaign&&offers.previousElementSibling!==nav)nav.after(offers)};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',move,{once:true});else move()})();
+<script id="marq-home-order-v3">
+(()=>{const move=()=>{const offers=document.getElementById('ofertas'),nav=document.querySelector('body>nav[aria-label="Navegação principal"]'),campaign=document.querySelector('.marq-campaigns');if(!offers||!nav||!campaign)return;if(nav.nextElementSibling!==campaign)nav.after(campaign);if(campaign.nextElementSibling!==offers)campaign.after(offers)};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',move,{once:true});else move()})();
 </script>
 
 <style id="marq-professional-brand-v3">
@@ -3215,6 +3215,36 @@ footer{background:#18344b!important;color:#e9eef1!important}
 footer strong{color:#fff!important}
 footer p{color:#d2dce2!important}
 @media(max-width:600px){.brand-header{padding:14px 17px!important;min-height:72px!important}.brand-name{font-size:28px!important}.brand-slogan{font-size:7px!important;letter-spacing:1.25px!important}.brand-promise{display:none!important}#ofertas{padding:8px!important}#ofertas .catalog-tools{padding:11px!important}.marq-catalog-toggle{width:100%}}
+</style>
+
+
+<style id="marq-home-hero-refresh-v1">
+.marq-campaigns{margin-top:22px!important;margin-bottom:24px!important}
+.marq-slides{min-height:350px!important;border-radius:22px!important;box-shadow:0 16px 38px rgba(24,52,75,.13)!important}
+.marq-slide-gamer{background:radial-gradient(circle at 80% 45%,#b28a43 0,#8d1b31 26%,transparent 58%),linear-gradient(112deg,#18344b 0%,#263e55 48%,#64101f 100%)!important}
+.marq-slide-kicker{font-size:10px!important;letter-spacing:1.1px!important}
+.marq-slide-copy h1{font-size:clamp(34px,4.3vw,54px)!important;line-height:1.04!important;max-width:560px!important}
+.marq-slide-copy p{font-size:16px!important;line-height:1.6!important;max-width:470px!important}
+.marq-slide-copy>a{font-size:12px!important;padding:15px 22px!important;box-shadow:0 8px 20px rgba(0,0,0,.18)!important}
+.art-glass{border-color:#ffffff8c!important;background:linear-gradient(145deg,#ffffff35,#ffffff0b)!important}
+.art-glass strong{color:#e6c47d!important}
+.marq-carousel-controls{background:rgba(14,32,48,.25)!important;border:1px solid rgba(255,255,255,.18)!important;border-radius:999px!important;padding:5px 8px!important}
+@media(max-width:650px){
+ .marq-campaigns{width:calc(100% - 24px)!important;margin:12px auto 18px!important}
+ .marq-slides{height:218px!important;min-height:218px!important;border-radius:17px!important}
+ .marq-slide{height:218px!important;min-height:218px!important;padding:19px 14px 38px!important;grid-template-columns:1.15fr .85fr!important;gap:2px!important}
+ .marq-slide-kicker{font-size:7px!important;letter-spacing:.45px!important;padding:5px 7px!important;margin-bottom:10px!important}
+ .marq-slide-copy h1{font-size:clamp(19px,5.4vw,25px)!important;line-height:1.08!important;letter-spacing:-.55px!important;margin-bottom:8px!important}
+ .marq-slide-copy p{font-size:10px!important;line-height:1.4!important;margin-bottom:11px!important;max-width:220px!important}
+ .marq-slide-copy>a{font-size:8px!important;padding:9px 11px!important;gap:6px!important}
+ .marq-slide-art{min-height:145px!important;height:145px!important}
+ .art-glass{width:78px!important;height:96px!important;border-radius:13px!important}
+ .art-glass b{font-size:10px!important;letter-spacing:2px!important}
+ .art-glass strong{font-size:37px!important;letter-spacing:-2px!important}
+ .art-glass small{font-size:5px!important;letter-spacing:.7px!important;margin-top:6px!important}
+ .art-chip{font-size:5px!important;padding:5px 6px!important;right:-2px!important;bottom:0!important}
+ .marq-carousel-controls{right:9px!important;bottom:7px!important}
+}
 </style>
 
 </body>
