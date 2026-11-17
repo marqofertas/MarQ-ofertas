@@ -821,19 +821,25 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
   let capture=null;
   try{const raw=sessionStorage.getItem('marq_shein_pending');if(raw)capture=JSON.parse(raw)}catch(e){}
   if(!capture)return;
-  if(!capture.title||!/^https:\/\/(?:onelink\.shein\.com|shein\.onelink\.me)\//i.test(capture.affiliate||'')){
-   sessionStorage.removeItem('marq_shein_pending');toast('Dados incompletos. Confira o link de afiliado SHEIN.');return;
+  if(!/^https:\/\/(?:onelink\.shein\.com|shein\.onelink\.me)\//i.test(capture.affiliate||'')){
+   sessionStorage.removeItem('marq_shein_pending');toast('O atalho chegou ao painel, mas não trouxe um link SHEIN válido.');return;
   }
   sessionStorage.removeItem('marq_shein_pending');
   goPage('products');
   sheinCapturedImage=/^https:\/\//i.test(capture.image||'')?capture.image:null;
-  $('sheinManualTitle').value=capture.title;
+  $('sheinManualTitle').value=capture.title||'';
   $('sheinManualPrice').value=Number.isFinite(capture.price)&&capture.price>0?capture.price.toFixed(2).replace('.',','):'';
   $('sheinManualLink').value=capture.affiliate;
   $('sheinAffiliateText').value='';
-  $('sheinPreviewBtn').click();
   $('sheinManualTitle').scrollIntoView({behavior:'smooth',block:'center'});
-  toast('Oferta SHEIN carregada. Confira os dados e toque em Cadastrar na MarQ.');
+  if(capture.title&&Number.isFinite(capture.price)&&capture.price>0){
+   $('sheinPreviewBtn').click();
+   toast('Oferta recebida. Confira os dados e toque em Cadastrar na MarQ.');
+  }else{
+   $('sheinImportBtn').disabled=true;
+   $('sheinImportPreview').innerHTML='<i>!</i><div><b>Link recebido, dados incompletos</b>O atalho não conseguiu ler '+(!capture.title?'o nome':'')+(!capture.title&&!Number.isFinite(capture.price)?' e ':'')+(!Number.isFinite(capture.price)||capture.price<=0?'o preço':'')+'. Complete os campos acima; o link afiliado já foi preenchido.</div>';
+   toast('Link SHEIN recebido. Complete nome e preço que não foram detectados.');
+  }
  }
  (function importSheinFromMobileBookmark(){
   const params=new URLSearchParams(location.search);
