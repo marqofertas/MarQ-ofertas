@@ -763,7 +763,12 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
    const {data:existing,error:lookupError}=await client.from('produtos').select('id,nome').eq('link_afiliado',sheinParsed.link).maybeSingle();
    if(lookupError)throw lookupError;
    if(existing)throw new Error('Este link já está cadastrado na MarQ como “'+existing.nome+'”.');
-   if(sheinPhotoFile){\n    const ext=sheinPhotoFile.type==='image/png'?'png':sheinPhotoFile.type==='image/webp'?'webp':'jpg';\n    const path='shein/'+Date.now()+'-'+crypto.randomUUID()+'.'+ext;\n    const {error:uploadError}=await client.storage.from('produtos').upload(path,sheinPhotoFile,{contentType:sheinPhotoFile.type,upsert:false});\n    if(uploadError)throw new Error('Falha ao enviar a foto: '+uploadError.message);\n    sheinCapturedImage=client.storage.from('produtos').getPublicUrl(path).data.publicUrl;\n   }\n   const payload={nome:sheinParsed.title,preco:sheinParsed.price,categoria:'SHEIN',link_afiliado:sheinParsed.link,Imagem:sheinCapturedImage,image_url:sheinCapturedImage,ativo:true,status_preco:'informado_afiliado'};
+   if(sheinPhotoFile){
+    const ext=sheinPhotoFile.type==='image/png'?'png':sheinPhotoFile.type==='image/webp'?'webp':'jpg';
+    const path='shein/'+Date.now()+'-'+crypto.randomUUID()+'.'+ext;
+    const {error:uploadError}=await client.storage.from('produtos').upload(path,sheinPhotoFile,{contentType:sheinPhotoFile.type,upsert:false});
+    if(uploadError)throw new Error('Falha ao enviar a foto: '+uploadError.message);
+    sheinCapturedImage=client.storage.from('produtos').getPublicUrl(path).data.publicUrl;\n   }\n   const payload={nome:sheinParsed.title,preco:sheinParsed.price,categoria:'SHEIN',link_afiliado:sheinParsed.link,Imagem:sheinCapturedImage,image_url:sheinCapturedImage,ativo:true,status_preco:'informado_afiliado'};
    const {data:created,error}=await client.from('produtos').insert(payload).select('id').single();
    if(error)throw error;
    $('sheinImportPreview').innerHTML='<i>…</i><div><b>Produto cadastrado</b>Buscando automaticamente a foto original na SHEIN…</div>';
