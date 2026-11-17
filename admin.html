@@ -222,6 +222,20 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
      <div class="notice"><i>3</i><div><b>Copie a mensagem completa</b>Use o botão Ganhar/Compartilhar para copiar título, preço e link oficial.</div></div>
     </div>
    </article>
+   <article class="card" style="border:2px solid #8f1728;margin-bottom:14px">
+    <h2>Atalho MarQ para Android</h2>
+    <p class="sub">Adicione este código como favorito no navegador. Na página de um produto SHEIN, execute o favorito para enviar título, preço e foto à MarQ.</p>
+    <label class="field full">Código do favorito — copie tudo
+     <textarea id="sheinBookmarkletCode" rows="4" readonly style="display:block;width:100%;margin-top:7px;border:1px solid var(--line);border-radius:10px;padding:10px;font:11px/1.45 ui-monospace,monospace;overflow-wrap:anywhere;resize:vertical"></textarea>
+    </label>
+    <div class="form-actions"><button class="btn dark" id="copySheinBookmarklet" type="button">Copiar código do atalho</button></div>
+    <div class="notice-list" style="margin-top:12px">
+     <div class="notice"><i>1</i><div><b>Crie um favorito</b>No Chrome, abra qualquer página, toque na estrela para favoritar e salve com o nome <strong>Enviar para MarQ</strong>.</div></div>
+     <div class="notice"><i>2</i><div><b>Edite o favorito</b>Abra Favoritos, toque em Editar e substitua o endereço pelo código copiado acima. Salve.</div></div>
+     <div class="notice"><i>3</i><div><b>Use na SHEIN</b>Abra a página do produto, execute o favorito pela barra de endereço digitando “Enviar para MarQ” e selecione o favorito. Cole o link oficial gerado no Centro de Afiliados quando solicitado.</div></div>
+    </div>
+    <p class="hint">O atalho não faz login, não gera links e não contorna bloqueios. Ele só lê os metadados disponíveis na página aberta; revise título, preço e foto antes de publicar. Se o navegador bloquear favoritos JavaScript, use o cadastro manual logo abaixo.</p>
+   </article>
    <article class="card">
     <h2>3. Importar e publicar na MarQ</h2>
     <p class="sub">A importação já está integrada ao painel: identifica o texto, evita duplicados, cadastra o produto e tenta localizar a foto original.</p>
@@ -359,7 +373,20 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
   }catch(e){sheinBotStatus.innerHTML='<i>!</i><div><b>Não foi possível concluir o garimpo</b>'+safe(e.message)+'</div>'}
   finally{b.disabled=false;b.textContent='✦ Garimpar agora'}
  });
-  $('sheinGoImport').addEventListener('click',()=>{
+  const sheinBookmarklet='javascript:(()=>{const m=s=>document.querySelector(s)?.content||\'\';const title=(m(\'meta[property="og:title"]\')||document.querySelector(\'h1\')?.innerText||document.title||\'\').replace(/\\s+/g,\' \').trim().slice(0,180);const image=m(\'meta[property="og:image"]\')||m(\'meta[name="twitter:image"]\');const price=m(\'meta[property="product:price:amount"]\')||m(\'meta[property="og:price:amount"]\');const affiliate=prompt(\'Cole o link gerado pelo botão Ganhar no Centro de Afiliados SHEIN:\');if(!affiliate)return;if(!/^https:\\/\\/(?:onelink\\.shein\\.com|shein\\.onelink\\.me)\\//i.test(affiliate.trim())){alert(\'Link de afiliado SHEIN inválido.\');return;}const u=new URL(\'https://marqofertas.github.io/MarQ-ofertas/admin.html\');u.searchParams.set(\'marq_shein\',\'1\');u.searchParams.set(\'title\',title);u.searchParams.set(\'image\',image);u.searchParams.set(\'price\',price);u.searchParams.set(\'affiliate\',affiliate.trim());location.href=u.toString();})();';
+ $('sheinBookmarkletCode').value=sheinBookmarklet;
+ $('copySheinBookmarklet').addEventListener('click',async()=>{
+  const btn=$('copySheinBookmarklet'),field=$('sheinBookmarkletCode');
+  try{
+   await navigator.clipboard.writeText(sheinBookmarklet);
+   toast('Código do atalho copiado. Agora edite o favorito e cole no campo endereço.');
+  }catch(e){
+   field.focus();field.select();
+   const copied=document.execCommand('copy');
+   toast(copied?'Código selecionado/copied. Se não copiar, mantenha pressionado e escolha Copiar.':'Selecione o código e escolha Copiar.');
+  }
+ });
+ $('sheinGoImport').addEventListener('click',()=>{
   goPage('products');
   $('sheinAffiliateText').scrollIntoView({behavior:'smooth',block:'center'});
   setTimeout(()=>$('sheinAffiliateText').focus({preventScroll:true}),350);
