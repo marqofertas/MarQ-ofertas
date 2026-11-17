@@ -397,6 +397,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
   showError('Acesso confirmado. Carregando os dados da loja…');
   const tasks=[['dados da loja',loadData],['conexão Mercado Livre',loadMlStatus],['garimpo inteligente',loadGarimpo]];
   for(const [label,task] of tasks){try{await task()}catch(err){console.error('Falha ao carregar '+label,err);showError('Painel aberto. Não foi possível carregar '+label+': '+(err?.message||String(err))+'. Use Atualizar para tentar novamente.');}}
+  consumeMobileSheinCapture();
   if(!$('dashboardStatus').textContent)showError('Painel conectado.');
  }
  $('loginForm').addEventListener('submit',async e=>{
@@ -816,24 +817,36 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
   btn.textContent='＋ Cadastrar na MarQ';
  });
 
+ function consumeMobileSheinCapture(){
+  let capture=null;
+  try{const raw=sessionStorage.getItem('marq_shein_pending');if(raw)capture=JSON.parse(raw)}catch(e){}
+  if(!capture)return;
+  if(!capture.title||!/^https:\/\/(?:onelink\.shein\.com|shein\.onelink\.me)\//i.test(capture.affiliate||'')){
+   sessionStorage.removeItem('marq_shein_pending');toast('Dados incompletos. Confira o link de afiliado SHEIN.');return;
+  }
+  sessionStorage.removeItem('marq_shein_pending');
+  goPage('products');
+  sheinCapturedImage=/^https:\/\//i.test(capture.image||'')?capture.image:null;
+  $('sheinManualTitle').value=capture.title;
+  $('sheinManualPrice').value=Number.isFinite(capture.price)&&capture.price>0?capture.price.toFixed(2).replace('.',','):'';
+  $('sheinManualLink').value=capture.affiliate;
+  $('sheinAffiliateText').value='';
+  $('sheinPreviewBtn').click();
+  $('sheinManualTitle').scrollIntoView({behavior:'smooth',block:'center'});
+  toast('Oferta SHEIN carregada. Confira os dados e toque em Cadastrar na MarQ.');
+ }
  (function importSheinFromMobileBookmark(){
   const params=new URLSearchParams(location.search);
   if(params.get('marq_shein')!=='1')return;
-  const title=(params.get('title')||'').slice(0,180);
-  const price=Number(params.get('price')||0);
-  const affiliate=(params.get('affiliate')||'').trim();
-  const image=(params.get('image')||'').trim();
-  if(!title||!/^https:\/\/(?:onelink\.shein\.com|shein\.onelink\.me)\//i.test(affiliate)){
-   toast('Dados incompletos. Confira o link de afiliado SHEIN.');return;
-  }
-  sheinCapturedImage=/^https:\/\//i.test(image)?image:null;
-  $('sheinManualTitle').value=title;
-  $('sheinManualPrice').value=Number.isFinite(price)&&price>0?price.toFixed(2).replace('.',','):'';
-  $('sheinManualLink').value=affiliate;
-  $('sheinAffiliateText').value='';
-  $('sheinPreviewBtn').click();
+  const capture={
+   title:(params.get('title')||'').slice(0,180),
+   price:Number(params.get('price')||0),
+   affiliate:(params.get('affiliate')||'').trim(),
+   image:(params.get('image')||'').trim()
+  };
+  try{sessionStorage.setItem('marq_shein_pending',JSON.stringify(capture))}catch(e){}
   history.replaceState({},'',location.pathname);
-  toast('Produto recebido do atalho Android. Confira e cadastre.');
+  if(!$('app').classList.contains('hidden'))consumeMobileSheinCapture();
  })();
  let marqFetchedProduct=null;
  const marqPriceNumber=v=>{const x=String(v||'').replace(/R\$/ig,'').replace(/\s/g,'').replace(/[^0-9.,]/g,'');if(!x)return null;const n=Number(x.includes(',')?x.replace(/\./g,'').replace(',','.'):x);return Number.isFinite(n)&&n>0?n:null};
