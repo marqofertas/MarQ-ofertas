@@ -2504,9 +2504,18 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
     });
   }
 
+  let mostrarCatalogoCompleto = false;
+  const botaoCatalogo = document.createElement('button');
+  botaoCatalogo.type = 'button';
+  botaoCatalogo.className = 'marq-catalog-toggle';
+  botaoCatalogo.textContent = 'Ver catálogo completo';
+  botaoCatalogo.setAttribute('aria-expanded', 'false');
+  document.querySelector('#ofertas .catalog-tools')?.appendChild(botaoCatalogo);
+
   function filtrar() {
     const termos = normalizar(busca.value).split(/\s+/).filter(Boolean);
     let visiveis = 0;
+    let totalCorrespondentes = 0;
 
     cards.forEach((card) => {
       const categoria = card.dataset.category || '';
@@ -2533,15 +2542,21 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
 
       // Sem busca, a vitrine mostra somente fotos reais.
       // Ao pesquisar, todos os produtos correspondentes continuam acessíveis.
-      const mostrar = correspondeCategoria && correspondeBusca &&
+      const correspondeVitrine = correspondeCategoria && correspondeBusca &&
         (termos.length > 0 || temFotoReal || card.dataset.marqDynamic === 'true');
+      if (correspondeVitrine) totalCorrespondentes += 1;
+      const mostrar = correspondeVitrine &&
+        (termos.length > 0 || mostrarCatalogoCompleto || visiveis < 8);
       card.hidden = !mostrar;
       if (mostrar) visiveis += 1;
     });
 
-    contador.textContent = visiveis + (visiveis === 1
-      ? ' produto encontrado na MarQ Ofertas'
-      : ' produtos encontrados na MarQ Ofertas');
+    contador.textContent = termos.length === 0 && !mostrarCatalogoCompleto && totalCorrespondentes > 8
+      ? 'Mostrando ' + visiveis + ' de ' + totalCorrespondentes + ' produtos selecionados'
+      : visiveis + (visiveis === 1 ? ' produto encontrado na MarQ Ofertas' : ' produtos encontrados na MarQ Ofertas');
+    botaoCatalogo.hidden = termos.length > 0 || totalCorrespondentes <= 8;
+    botaoCatalogo.textContent = mostrarCatalogoCompleto ? 'Mostrar menos' : 'Ver catálogo completo (' + totalCorrespondentes + ')';
+    botaoCatalogo.setAttribute('aria-expanded', mostrarCatalogoCompleto ? 'true' : 'false');
     vazio.style.display = visiveis ? 'none' : 'block';
     vazio.textContent = termos.length === 0 && categoriaAtiva === 'pets'
       ? '🐾 Estamos preparando uma seleção especial para seu pet. Em breve, novidades por aqui!'
@@ -2551,6 +2566,12 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
         ? 'Estamos preparando fotos reais para os próximos produtos desta categoria.'
         : 'Não encontramos produtos com essa busca. Tente outro termo.';
   }
+
+  botaoCatalogo.addEventListener('click', () => {
+    mostrarCatalogoCompleto = !mostrarCatalogoCompleto;
+    filtrar();
+    if (!mostrarCatalogoCompleto) document.getElementById('ofertas')?.scrollIntoView({behavior:'smooth',block:'start'});
+  });
 
   function pontuacaoVendas(card) {
     const selo = card.querySelector('.sold')?.textContent || '';
@@ -3148,5 +3169,51 @@ nav{background:#64101f!important}
 nav{background:#fff!important;border-top:1px solid #f0f3f7!important;border-bottom:1px solid #e8edf3!important}nav a{color:#344b63!important;font-weight:700!important}nav a:hover{color:#0878d1!important}
 @media(max-width:650px){.brand-header{min-height:72px!important;padding:13px 5%!important}.brand-symbol{width:42px!important;height:42px!important;flex-basis:42px!important;border-radius:11px!important}.brand-name{font-size:27px!important;letter-spacing:-1.2px!important}.brand-slogan{font-size:7px!important;letter-spacing:1.2px!important}.brand-promise{display:none!important}.search-wrap{padding:10px 0 13px!important}}
 </style>
+
+<style id="marq-professional-refresh-2026">
+:root{--marq-ink:#182a3a!important;--marq-navy:#18344b!important;--marq-gold:#c6a15b!important;--marq-paper:#f6f7f8!important}
+body{background:#f6f7f8!important;color:#263746!important}
+.brand-header{max-width:none!important;min-height:86px!important;padding:17px max(5%,calc((100% - 1180px)/2))!important;background:#fff!important;border-bottom:1px solid #e8edf0!important;box-shadow:0 2px 12px #162b3d0a!important}
+.brand-lockup{gap:12px!important}
+.brand-symbol{width:44px!important;height:44px!important;flex-basis:44px!important;border-radius:12px!important;background:#18344b!important;box-shadow:none!important;transform:none!important}
+.brand-symbol:before{border-color:#c6a15b!important;border-radius:9px!important}
+.brand-symbol i{border-color:#c6a15b!important}
+.brand-symbol b{color:#fff!important}
+.brand-name{color:#18344b!important;font-size:32px!important;letter-spacing:-1.3px!important;text-shadow:none!important;font-weight:900!important}
+.brand-name em{color:#b28a43!important;text-shadow:none!important;font-weight:800!important}
+.brand-slogan{color:#687985!important;font-size:8px!important;letter-spacing:1.8px!important}
+.brand-promise{background:#f5f7f8!important;border:1px solid #e6ebef!important;color:#526674!important}
+.promise-dot{background:#c6a15b!important;box-shadow:0 0 0 4px #f5f7f8!important}
+.search-wrap{background:#fff!important;margin:0 auto!important;padding:14px max(4%,calc((100% - 900px)/2))!important}
+.search-wrap input{border:1px solid #dfe6eb!important;box-shadow:none!important;background:#f8fafb!important}
+.search-wrap input:focus{border-color:#c6a15b!important;box-shadow:0 0 0 3px #c6a15b20!important}
+.search-icon{color:#647887!important}
+#limpar-busca{background:#18344b!important;color:#fff!important}
+nav{background:#18344b!important;border:0!important;justify-content:center!important}
+nav a{color:#fff!important}
+nav a:after{background:#c6a15b!important}
+#ofertas{background:transparent!important;border:0!important;box-shadow:none!important}
+#ofertas .section-head h2{color:#18344b!important;font-size:clamp(23px,3vw,30px)!important}
+#ofertas .section-sub{color:#637481!important;line-height:1.6}
+#ofertas .header-tag{background:#eef2f4!important;color:#526674!important;border:1px solid #e0e7eb!important}
+#ofertas .catalog-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#fff!important;border:1px solid #e6ebef!important;border-radius:14px!important;padding:13px 16px!important}
+#contador{color:#526674!important;font-size:13px!important}
+#grade-produtos .card{border:1px solid #e7ebee!important;border-radius:15px!important;box-shadow:0 3px 14px #142b3d0a!important}
+#grade-produtos .card:hover{box-shadow:0 10px 24px #142b3d14!important;transform:translateY(-3px)!important}
+#grade-produtos .produto-imagem-link{background:#f5f7f8!important;border-bottom:1px solid #edf0f2!important}
+#grade-produtos .card img{background:#f5f7f8!important}
+#grade-produtos .info h3,#grade-produtos .info h3 a{color:#263746!important}
+#grade-produtos .preco{color:#18344b!important}
+#grade-produtos .detalhes-link{background:#f3f6f7!important;border:1px solid #e5eaed!important;color:#526674!important}
+#grade-produtos .botao{background:#18344b!important;border-color:#18344b!important;color:#fff!important}
+#grade-produtos .sold{background:#f7f4ed!important;color:#8a6b32!important;border-color:#eee4d2!important}
+.marq-catalog-toggle{border:0!important;border-radius:9px!important;padding:11px 16px!important;background:#18344b!important;color:#fff!important;font-size:12px!important;font-weight:800!important;cursor:pointer!important}
+.marq-catalog-toggle:hover{background:#254c68!important}
+footer{background:#18344b!important;color:#e9eef1!important}
+footer strong{color:#fff!important}
+footer p{color:#d2dce2!important}
+@media(max-width:600px){.brand-header{padding:14px 17px!important;min-height:72px!important}.brand-name{font-size:28px!important}.brand-slogan{font-size:7px!important;letter-spacing:1.25px!important}.brand-promise{display:none!important}#ofertas{padding:8px!important}#ofertas .catalog-tools{padding:11px!important}.marq-catalog-toggle{width:100%}}
+</style>
+
 </body>
 </html>
