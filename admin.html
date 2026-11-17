@@ -197,12 +197,11 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
     <div id="sheinBotResults"><div class="empty">Nenhum garimpo executado nesta sessão.</div></div>
    </article>
    <article class="card" style="border:2px solid #d6ad58;margin-bottom:14px">
-    <h2>Conectar SHEIN pelo celular</h2>
-    <p class="sub">Abre um navegador protegido na nuvem para você entrar no Centro de Afiliados SHEIN. A sessão dura até 10 minutos; gravação e logs estão desativados.</p>
-    <button class="btn dark" id="sheinSecureConnect" type="button">🔒 Iniciar conexão protegida</button>
-    <div class="notice hidden" id="sheinSecureStatus" style="margin-top:12px"></div>
-    <div class="notice" style="margin-top:12px"><i>🔐</i><div><b>Login feito somente na SHEIN</b>Ao abrir o navegador remoto, entre diretamente no site da SHEIN. O MarQ não solicita, recebe nem envia sua senha.</div></div>
-    <p class="hint">A sessão protegida dura até 10 minutos. Se a SHEIN pedir verificação, conclua-a manualmente na própria página.</p>
+    <h2>Entrar pelo celular — SHEIN Afiliados</h2>
+    <p class="sub">A SHEIN direciona o acesso à nova plataforma de afiliados pelo próprio aplicativo. O navegador remoto anterior foi desativado porque exibia uma tela técnica que não permitia concluir o acesso corretamente no celular.</p>
+    <a class="btn dark" href="https://onelink.shein.com/3/3usk7i1vyedb" target="_blank" rel="noopener noreferrer" style="display:inline-flex;text-decoration:none">Abrir Centro de Afiliados SHEIN ↗</a>
+    <div class="notice" style="margin-top:12px"><i>ℹ</i><div><b>Faça o login no aplicativo SHEIN</b>Se o Android perguntar, escolha abrir no aplicativo. Entre normalmente e gere o link na área de produtos recomendados do Centro de Afiliados.</div></div>
+    <p class="hint">Por segurança, o MarQ não pede sua senha. Depois de gerar o link de afiliado, use a captura de produto do painel para enviar a oferta à fila de aprovação.</p>
    </article>
    <article class="card" style="border:2px solid #d6ad58;margin-bottom:14px">
     <h2>1. Garimpar produtos que já estão vendendo</h2>
@@ -303,25 +302,6 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
  $('radarShortcut').addEventListener('click',()=>{goPage('shein-radar');$('page-shein-radar').scrollIntoView({behavior:'smooth',block:'start'});});
  
  const sheinBotStatus=$('sheinBotStatus'),sheinBotResults=$('sheinBotResults');
- const secureConnectButton=$('sheinSecureConnect');
- const secureConnectStatus=$('sheinSecureStatus');
- secureConnectButton.addEventListener('click',async()=>{
-  secureConnectButton.disabled=true;secureConnectButton.textContent='Preparando navegador protegido…';
-  secureConnectStatus.classList.remove('hidden');
-  secureConnectStatus.innerHTML='<i>↻</i><div><b>Solicitando sessão segura</b>Aguarde alguns segundos.</div>';
-  try{
-   const {data,error}=await client.functions.invoke('marq-shein-connect',{body:{action:'create'}});
-   if(error||data?.error)throw new Error(data?.error||error.message);
-   
-   const link=document.createElement('a');link.href=data.live_view_url;link.target='_blank';link.rel='noopener noreferrer';link.className='btn dark';link.textContent='Abrir navegador SHEIN ↗';
-   secureConnectStatus.innerHTML='<i>✓</i><div><b>Navegador protegido pronto</b>Entre na sua conta SHEIN e acesse o Centro de Afiliados. A sessão expira em até 10 minutos. </div>';
-   secureConnectStatus.querySelector('div').appendChild(link);
-   secureConnectButton.textContent='Criar nova sessão';
-  }catch(e){
-   secureConnectStatus.innerHTML='<i>!</i><div><b>Conexão não iniciada</b>'+safe(e.message)+'</div>';
-   secureConnectButton.textContent='Tentar novamente';
-  }finally{secureConnectButton.disabled=false}
- });
  function renderSheinCandidates(items){
   if(!items||!items.length){sheinBotResults.innerHTML='<div class="empty">Nenhum produto foi extraído. A SHEIN pode ter bloqueado a leitura automática das listas nesta consulta.</div>';return}
   sheinBotResults.innerHTML=items.map(x=>`<div class="notice" style="display:block;margin:10px 0;padding:14px">
