@@ -252,9 +252,11 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
     <div class="form-grid">
      <label class="field">Desconto mínimo padrão (%)<input id="garimpoConfigDiscount" type="number" min="0" max="90" step="1" value="10"></label>
      <label class="field">Preço máximo padrão (R$)<input id="garimpoConfigPrice" type="number" min="0" step="0.01" placeholder="Sem limite"></label>
-     <label class="field full" style="display:flex;align-items:center;gap:10px"><input id="garimpoAutoPublish" type="checkbox" checked style="width:18px;height:18px"> Publicar automaticamente quando o link de afiliado for salvo</label>
-     <div class="field full"><button class="btn dark" id="garimpoSaveConfig" type="button">Salvar regras</button><span class="hint" id="garimpoConfigStatus"></span></div>
-    </div>
+     <label class="field">Modo de publicação<select id="garimpoMode"><option value="review">Garimpar e aguardar minha aprovação</option><option value="automatic">Publicar automaticamente ofertas elegíveis</option></select></label>
+     <label class="field">Intervalo do garimpo<select id="garimpoScanInterval"><option value="1">A cada 1 hora</option><option value="3">A cada 3 horas</option><option value="6" selected>A cada 6 horas</option><option value="12">A cada 12 horas</option><option value="24">Uma vez por dia</option></select></label>
+     <label class="field full" style="display:flex;align-items:center;gap:10px"><input id="garimpoAutomationEnabled" type="checkbox" checked style="width:18px;height:18px"> Ativar garimpo automático programado</label>
+     <label class="field full">Produtos e categorias para pesquisar (separe por vírgulas)<textarea id="garimpoSearchTerms" rows="3" placeholder="air fryer, fone bluetooth, cafeteira..." style="width:100%;margin-top:6px"></textarea></label>
+     <div class="field full"><button class="btn dark" id="garimpoSaveConfig" type="button">Salvar regras e automação</button><span class="hint" id="garimpoConfigStatus"></span></div>
    </article>
    <div class="page-head"><div><span class="eyebrow">RADAR DE OFERTAS</span><h1 style="font-size:22px">Fila de oportunidades</h1><p>Confira o desconto, adicione seu link de afiliado e publique na MarQ.</p></div><div class="filters"><select id="garimpoStatusFilter"><option value="all">Todas</option><option value="candidate">Aguardando link</option><option value="ready">Prontas</option><option value="published">Publicadas</option><option value="ignored">Ignoradas</option></select></div></div>
    <div id="garimpoQueue" class="garimpo-grid"><div class="empty">Carregando oportunidades…</div></div>
@@ -590,7 +592,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
   if(data?.error)throw new Error(data.error);
   return data;
  }
- let garimpoItems=[],garimpoConfig={auto_publish:true,min_discount:10,max_price:null};
+ let garimpoItems=[],garimpoConfig={auto_publish:true,min_discount:10,max_price:null,automation_enabled:true,scan_interval_hours:6,search_terms:['air fryer','fone bluetooth','liquidificador','cafeteira','aspirador de pó','panela elétrica','organizador de cozinha','smartwatch','cadeira de escritório','ventilador']};
  function renderGarimpo(){
   const list=garimpoItems,filter=$('garimpoStatusFilter').value;
   $('gTotal').textContent=list.length.toLocaleString('pt-BR');
@@ -610,7 +612,10 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
   $('garimpoQueue').innerHTML='<div class="empty">Atualizando fila…</div>';
   try{
    const data=await garimpoCall({action:'list'});garimpoItems=data.items||[];garimpoConfig=data.config||garimpoConfig;
-   $('garimpoAutoPublish').checked=!!garimpoConfig.auto_publish;
+   $('garimpoMode').value=garimpoConfig.auto_publish?'automatic':'review';
+    $('garimpoAutomationEnabled').checked=garimpoConfig.automation_enabled!==false;
+    $('garimpoScanInterval').value=String(garimpoConfig.scan_interval_hours??6);
+    $('garimpoSearchTerms').value=(garimpoConfig.search_terms||[]).join(', ');
    $('garimpoConfigDiscount').value=garimpoConfig.min_discount??10;
    $('garimpoConfigPrice').value=garimpoConfig.max_price??'';
    $('garimpoMinDiscount').value=garimpoConfig.min_discount??10;
@@ -636,7 +641,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
  });
  $('garimpoAutoScanBtn').addEventListener('click',async()=>{
   const btn=$('garimpoAutoScanBtn'),status=$('garimpoSearchStatus');
-  const terms=['air fryer','fone bluetooth','liquidificador','cafeteira','aspirador de pó','panela elétrica','organizador de cozinha','smartwatch','cadeira de escritório','ventilador'];
+  const terms=(garimpoConfig.search_terms||[]).filter(x=>String(x).trim().length>=2);
   const minDiscount=Number($('garimpoMinDiscount').value||10);
   const maxPrice=$('garimpoMaxPrice').value?Number($('garimpoMaxPrice').value):null;
   let searched=0,saved=0,filtered=0,failed=[];
@@ -656,7 +661,11 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
  });
  $('garimpoSaveConfig').addEventListener('click',async()=>{
   const btn=$('garimpoSaveConfig');btn.disabled=true;
-  try{await garimpoCall({action:'config',auto_publish:$('garimpoAutoPublish').checked,min_discount:Number($('garimpoConfigDiscount').value||0),max_price:$('garimpoConfigPrice').value?Number($('garimpoConfigPrice').value):null});toast('Regras do garimpo salvas.');$('garimpoConfigStatus').textContent='Configurações atualizadas.';await loadGarimpo()}catch(e){toast(e.message);$('garimpoConfigStatus').textContent=e.message}
+  try{
+    const searchTerms=$('garimpoSearchTerms').value.split(/[,\n]+/).map(x=>x.trim()).filter(x=>x.length>=2);
+    await garimpoCall({action:'config',auto_publish:$('garimpoMode').value==='automatic',automation_enabled:$('garimpoAutomationEnabled').checked,scan_interval_hours:Number($('garimpoScanInterval').value||6),search_terms:searchTerms,min_discount:Number($('garimpoConfigDiscount').value||0),max_price:$('garimpoConfigPrice').value?Number($('garimpoConfigPrice').value):null});
+    toast('Regras e automação do garimpo salvas.');$('garimpoConfigStatus').textContent='Configurações atualizadas. O robô verificará as ofertas no intervalo escolhido.';await loadGarimpo()
+   }catch(e){toast(e.message);$('garimpoConfigStatus').textContent=e.message}
   btn.disabled=false;
  });
  $('garimpoQueue').addEventListener('click',async e=>{
