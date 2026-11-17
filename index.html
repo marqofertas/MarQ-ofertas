@@ -2548,16 +2548,16 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
         (termos.length > 0 || ((temFotoReal || card.dataset.marqDynamic === 'true') && temPrecoCadastrado));
       if (correspondeVitrine) totalCorrespondentes += 1;
       const mostrar = correspondeVitrine &&
-        (termos.length > 0 || mostrarCatalogoCompleto || visiveis < 8);
+        (termos.length > 0 || mostrarCatalogoCompleto || visiveis < 6);
       card.hidden = !mostrar;
       if (mostrar) visiveis += 1;
     });
 
-    contador.textContent = termos.length === 0 && !mostrarCatalogoCompleto && totalCorrespondentes > 8
+    contador.textContent = termos.length === 0 && !mostrarCatalogoCompleto && totalCorrespondentes > 6
       ? 'Mostrando ' + visiveis + ' de ' + totalCorrespondentes + ' produtos selecionados'
       : visiveis + (visiveis === 1 ? ' produto encontrado na MarQ Ofertas' : ' produtos encontrados na MarQ Ofertas');
     botaoCatalogo.hidden = termos.length > 0 || totalCorrespondentes <= 8;
-    botaoCatalogo.textContent = mostrarCatalogoCompleto ? 'Mostrar menos' : 'Ver catálogo completo (' + totalCorrespondentes + ')';
+    botaoCatalogo.textContent = mostrarCatalogoCompleto ? 'Mostrar menos' : 'Ver todos os produtos (' + totalCorrespondentes + ')';
     botaoCatalogo.setAttribute('aria-expanded', mostrarCatalogoCompleto ? 'true' : 'false');
     vazio.style.display = visiveis ? 'none' : 'block';
     vazio.textContent = termos.length === 0 && categoriaAtiva === 'pets'
