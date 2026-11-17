@@ -1655,6 +1655,7 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
 <section id="ofertas">
   <div class="section-head"><h2>Ofertas em destaque na MarQ</h2><span class="header-tag">SELEÇÃO POPULAR</span></div>
   <p class="section-sub">Explore os destaques da vitrine. Quando houver informação de popularidade, ela vem do anúncio original; confirme preço e condições na loja parceira.</p>
+<div id="marq-daily-offers" class="marq-daily-offers"><div class="marq-daily-heading"><span>✦ SELEÇÃO ESPECIAL</span><h3>Ofertas do Dia</h3><p>Oportunidades selecionadas para você conferir hoje.</p></div><div id="marq-daily-grid" class="marq-daily-grid"><div class="marq-daily-loading">Carregando ofertas selecionadas…</div></div></div>
   <div class="catalog-tools">
     <span id="contador" aria-live="polite">7 produtos encontrados</span>
     <label for="ordenar" class="header-tag">Ordenar:
@@ -2364,6 +2365,12 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
   const vazio = document.getElementById('sem-resultados');
   if (!busca || !grade || !contador || !vazio) return;
 
+  // MARQ-DAILY-OFFERS-V1
+  try {
+    const dr=await fetch(MARQ_SUPABASE_URL+'/rest/v1/marq_ofertas_dia?select=id,chamada,video_url,inicio,fim,ordem,produtos!inner(id,nome,preco,link_afiliado,Imagem,image_url)&ativo=eq.true&order=ordem.asc&limit=5',{headers:{apikey:MARQ_PUBLIC_KEY},cache:'no-store'});
+    if(!dr.ok)throw new Error('HTTP '+dr.status);const dailyRows=await dr.json(),dg=document.getElementById('marq-daily-grid');
+    if(dg)dg.innerHTML=dailyRows.length?dailyRows.map(x=>{const p=x.produtos||{},name=String(p.nome||'Oferta selecionada'),img=String(p.image_url||p.Imagem||''),link=String(p.link_afiliado||''),video=String(x.video_url||'');if(!link.startsWith('https://'))return '';const price=p.preco==null?'Consulte o anúncio':Number(p.preco).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});return '<article class="marq-daily-card">'+(img?'<img src="'+escapeHtml(img)+'" alt="'+escapeHtml(name)+'" loading="lazy" referrerpolicy="no-referrer">':'<div class="marq-daily-noimage">MARQ OFERTAS</div>')+'<div class="marq-daily-info"><span class="marq-daily-tag">OFERTA SELECIONADA</span><h4>'+escapeHtml(name)+'</h4><strong>'+escapeHtml(price)+'</strong>'+(x.chamada?'<p>'+escapeHtml(x.chamada)+'</p>':'')+(video.startsWith('https://')?'<a class="marq-daily-video" href="'+escapeHtml(video)+'" target="_blank" rel="noopener noreferrer">▶ Assistir demonstração</a>':'')+'<a class="marq-daily-buy" href="'+escapeHtml(link)+'" target="_blank" rel="sponsored noopener noreferrer">CONFERIR OFERTA →</a><small>Preço e disponibilidade podem mudar na loja parceira.</small></div></article>';}).join('')||'<p class="marq-daily-empty">Estamos preparando novas oportunidades. Volte em breve!</p>':'<p class="marq-daily-empty">Estamos preparando novas oportunidades. Volte em breve!</p>';
+  }catch(e){console.warn('[MarQ] Ofertas do Dia:',e);const dg=document.getElementById('marq-daily-grid');if(dg)dg.innerHTML='<p class="marq-daily-empty">Não foi possível carregar as ofertas agora.</p>';}
   // MARQ-DYNAMIC-CATALOG-V1: novos produtos ativos do painel entram na vitrine automaticamente.
   const MARQ_SUPABASE_URL = 'https://zonclgsfqtylnedxigxd.supabase.co';
   const MARQ_PUBLIC_KEY = 'sb_publishable_7Oi8lKwThZ2kKQUVxUT-oQ_3O-4_mSK';
@@ -3397,5 +3404,11 @@ body>nav[aria-label="Navegação principal"] a{font-size:12px!important;color:#f
 }
 </style>
 
+<style id="marq-daily-offers-v1">
+.marq-daily-offers{width:94%;max-width:1180px;margin:18px auto 26px;padding:20px;border:1px solid #e5ebf0;border-radius:17px;background:linear-gradient(145deg,#f8fbfe,#fff);box-shadow:0 7px 22px rgba(24,52,75,.055)}
+.marq-daily-heading>span{font-size:9px;letter-spacing:1.5px;font-weight:900;color:#b28b4c}.marq-daily-heading h3{margin:4px 0;color:#18344b;font-size:clamp(21px,3vw,27px);font-weight:900}.marq-daily-heading p{margin:0 0 15px;color:#71808c;font-size:12px}
+.marq-daily-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.marq-daily-card{display:grid;grid-template-columns:112px minmax(0,1fr);gap:13px;padding:11px;background:#fff;border:1px solid #e8edf2;border-radius:13px;min-width:0}.marq-daily-card>img,.marq-daily-noimage{width:112px;height:142px;object-fit:contain;border-radius:9px;background:#f4f7f9}.marq-daily-noimage{display:grid;place-items:center;color:#80909b;font-size:10px;font-weight:900}.marq-daily-info{display:flex;flex-direction:column;align-items:flex-start;min-width:0}.marq-daily-tag{font-size:8px;letter-spacing:.8px;font-weight:900;color:#a17a3f}.marq-daily-info h4{font-size:13px;line-height:1.35;color:#18344b;margin:5px 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.marq-daily-info>strong{font-size:19px;color:#18344b;font-weight:950;margin:2px 0}.marq-daily-info p{font-size:10px;color:#667987;margin:2px 0 7px}.marq-daily-buy{margin-top:auto;display:block;width:100%;padding:10px 8px;border-radius:8px;background:#18344b;color:#fff!important;text-align:center;font-size:10px;font-weight:900;text-decoration:none}.marq-daily-video{font-size:10px;color:#176db1!important;text-decoration:none;font-weight:800;margin:4px 0}.marq-daily-info small{font-size:8px;color:#8a969e;margin-top:6px;line-height:1.35}.marq-daily-loading,.marq-daily-empty{grid-column:1/-1;padding:16px;color:#71808c;font-size:12px;text-align:center}
+@media(max-width:650px){.marq-daily-offers{padding:14px;margin:14px auto 20px}.marq-daily-grid{grid-template-columns:1fr;gap:9px}.marq-daily-card{grid-template-columns:94px minmax(0,1fr);gap:10px;padding:9px}.marq-daily-card>img,.marq-daily-noimage{width:94px;height:124px}.marq-daily-info h4{font-size:12px}.marq-daily-info>strong{font-size:18px}}
+</style>
 </body>
 </html>
