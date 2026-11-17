@@ -1,4 +1,4 @@
-const CACHE_NAME = "marq-ofertas-shell-v31";
+const CACHE_NAME = "marq-ofertas-shell-v32";
 const APP_SHELL = ["./", "./index.html", "./produto.html", "./admin.html", "./admin-manifest.webmanifest", "./manifest.webmanifest", "./icons/loja-192.svg", "./icons/loja-512.svg", "./icons/painel-192.svg", "./icons/painel-512.svg"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));
