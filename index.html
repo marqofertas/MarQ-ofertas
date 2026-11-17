@@ -11,8 +11,8 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="MarQ Ofertas | Achou, gostou, economizou">
 <meta property="og:description" content="Descubra achadinhos de casa, eletrônicos, beleza, esportes e muito mais na MarQ Ofertas.">
-<meta property="og:url" content="https://marqofertas.github.io/MarQ-ofertas/">
-<link rel="canonical" href="https://marqofertas.github.io/MarQ-ofertas/">
+<meta property="og:url" content="https://marq-ofertas.vercel.app/">
+<link rel="canonical" href="https://marq-ofertas.vercel.app/">
 <meta name="twitter:card" content="summary">
 <meta name="robots" content="index,follow">
 <title>MarQ Ofertas | Achadinhos que valem a pena</title>
@@ -2387,7 +2387,7 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
     return 'achadinhos';
   };
   try {
-    const response = await fetch(MARQ_SUPABASE_URL + '/rest/v1/produtos?select=id,nome,preco,categoria,link_afiliado,ativo,Imagem,image_url&ativo=eq.true&link_afiliado=not.is.null&order=created_at.desc&limit=1000', {
+    const response = await fetch(MARQ_SUPABASE_URL + '/rest/v1/produtos?select=id,nome,preco,categoria,link_afiliado,ativo,Imagem,image_url&ativo=eq.true&preco=gt.0&link_afiliado=not.is.null&order=created_at.desc&limit=1000', {
       headers: { apikey: MARQ_PUBLIC_KEY },
       cache: 'no-store'
     });
@@ -2397,7 +2397,7 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
     rows.forEach(product => {
       const id = String(product.id || '');
       const affiliate = String(product.link_afiliado || '');
-      if (!id || !affiliate || existingIds.has(id)) return;
+      if (!id || !affiliate || existingIds.has(id) || !Number.isFinite(Number(product.preco)) || Number(product.preco) <= 0) return;
       let affiliateHost = '';
       try { affiliateHost = new URL(affiliate).hostname.toLowerCase(); } catch (_) { return; }
       if (!affiliate.startsWith('https://')) return;
@@ -2405,6 +2405,7 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
       const category = categoriaProduto(product.categoria, product.nome);
       const title = String(product.nome || ('Oferta #' + id));
       const image = String(product.image_url || product.Imagem || '');
+      if (!/^https:\/\//i.test(image)) return;
       const detailUrl = './produto.html?id=' + encodeURIComponent(id);
       const price = product.preco == null || product.preco === '' ? 'Consulte o anúncio' : Number(product.preco).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
       const imageMarkup = image
@@ -2485,6 +2486,8 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
       return;
     }
     const encontrados = cards.filter((card) => {
+      const precoValido = /R\$\s*[\d.]+(?:,[\d]{2})?/.test(card.querySelector('.preco')?.textContent || '');
+      if (card.dataset.marqFotoValida !== 'true' || !precoValido) return false;
       const titulo = normalizar(card.querySelector('h3')?.textContent || '');
       const buscaCompleta = normalizar([card.dataset.search, titulo, card.dataset.tags || ''].join(' '));
       return termo.split(/\s+/).every((parte) => buscaCompleta.includes(parte));
@@ -2551,8 +2554,7 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
       // Ao pesquisar, todos os produtos correspondentes continuam acessíveis.
       const textoPreco = card.querySelector('.preco')?.textContent || '';
       const temPrecoCadastrado = /R\$\s*[\d.]+(?:,[\d]{2})?/.test(textoPreco);
-      const correspondeVitrine = correspondeCategoria && correspondeBusca &&
-        (termos.length > 0 || ((temFotoReal || card.dataset.marqDynamic === 'true') && temPrecoCadastrado));
+      const correspondeVitrine = correspondeCategoria && correspondeBusca && temFotoReal && temPrecoCadastrado;
       if (correspondeVitrine) totalCorrespondentes += 1;
       const mostrar = correspondeVitrine &&
         (termos.length > 0 || mostrarCatalogoCompleto || visiveis < 6);
@@ -2615,6 +2617,8 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
       evento.preventDefault();
       const termo = normalizar(busca.value);
       const encontrados = cards.filter((card) => {
+        const precoValido = /R\$\s*[\d.]+(?:,[\d]{2})?/.test(card.querySelector('.preco')?.textContent || '');
+        if (card.dataset.marqFotoValida !== 'true' || !precoValido) return false;
         const titulo = normalizar(card.querySelector('h3')?.textContent || '');
         const texto = normalizar([card.dataset.search, titulo, card.dataset.tags || ''].join(' '));
         return termo && termo.split(/\s+/).every((parte) => texto.includes(parte));
