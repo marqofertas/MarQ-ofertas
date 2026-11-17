@@ -2455,6 +2455,8 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
   filtros.forEach((item) => {
     const chave = item.dataset.filter || 'todos';
     const quantidade = cards.filter((card) => {
+      const precoValido = /R\$\s*[\d.]+(?:,[\d]{2})?/.test(card.querySelector('.preco')?.textContent || '');
+      if (card.dataset.marqFotoValida !== 'true' || !precoValido) return false;
       if (chave === 'todos') return true;
       if (chave === 'achadinhos') return (card.dataset.tags || '').split(/\s+/).includes('achadinhos');
       return card.dataset.category === chave;
