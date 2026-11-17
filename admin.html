@@ -86,6 +86,25 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
     <div class="metric"><div class="metric-top"><span>Sem cliques</span><i class="metric-icon">◌</i></div><strong id="productNoClicks">—</strong><small>No período selecionado</small></div>
     <div class="metric"><div class="metric-top"><span>Links cadastrados</span><i class="metric-icon">⌁</i></div><strong id="productLinks">—</strong><small>Links de afiliado disponíveis</small></div>
    </div>
+<article class="card" id="marqUrlImporter" style="margin:16px 0;border:2px solid #8f1728">
+    <div class="table-head"><div><h2>⚡ Importar produto por link</h2><p class="sub">Cole o link de afiliado. A MarQ tenta localizar nome, foto e preço automaticamente antes de publicar.</p></div><span class="pill good">NOVO</span></div>
+    <label class="field full">Link do produto / afiliado<input id="marqImportUrl" type="url" inputmode="url" placeholder="https://..." style="display:block;width:100%;margin-top:6px"></label>
+    <div class="form-actions"><button class="btn" id="marqImportSearch" type="button">🔎 Buscar dados do produto</button></div>
+    <div id="marqImportResult" class="notice" style="margin-top:12px"><i>i</i><div><b>Aguardando link</b>Cole um link do Mercado Livre, SHEIN, Shopee, Amazon, Magalu ou AliExpress.</div></div>
+    <div id="marqImportFields" class="hidden" style="margin-top:14px">
+     <div style="display:grid;grid-template-columns:112px minmax(0,1fr);gap:14px;align-items:start">
+      <img id="marqImportImagePreview" alt="Foto do produto" style="width:112px;height:112px;object-fit:contain;background:#fff9ed;border:1px solid var(--line);border-radius:12px">
+      <div class="form-grid">
+       <label class="field full">Nome do produto<input id="marqImportTitle" type="text" maxlength="180"></label>
+       <label class="field">Preço (R$)<input id="marqImportPrice" type="text" inputmode="decimal" placeholder="Ex.: 59,90"></label>
+       <label class="field">Categoria<input id="marqImportCategory" type="text" maxlength="80"></label>
+       <label class="field full">URL da foto (pode corrigir)<input id="marqImportImage" type="url" placeholder="https://..."></label>
+      </div>
+     </div>
+     <p class="hint">Confira os dados antes de cadastrar. Se a loja bloquear a leitura, você pode completar nome, preço e foto manualmente.</p>
+     <div class="form-actions"><button class="btn dark" id="marqImportPublish" type="button">＋ Cadastrar e publicar na MarQ</button></div>
+    </div>
+   </article>
 <article class="card" style="margin-bottom:16px;border:2px solid #d6ad58">
     <div class="table-head"><div><h2>Importar oferta da SHEIN</h2><p class="sub">No Centro de Afiliados, toque em Ganhar e copie a mensagem. Se ela vier incompleta, preencha os campos abaixo manualmente.</p></div><span class="pill good">SHEIN</span></div>
     <label class="field full">Mensagem completa copiada da SHEIN<textarea id="sheinAffiliateText" rows="5" placeholder="Cole aqui a mensagem do botão Ganhar. Também pode colar somente o link de afiliado e preencher os campos abaixo." style="display:block;width:100%;margin-top:6px;border:1px solid var(--line);border-radius:10px;padding:12px;font:13px/1.5 inherit;resize:vertical"></textarea></label>
@@ -754,6 +773,45 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
   history.replaceState({},'',location.pathname);
   toast('Produto recebido do atalho Android. Confira e cadastre.');
  })();
+ let marqFetchedProduct=null;
+ const marqPriceNumber=v=>{const x=String(v||'').replace(/R\$/ig,'').replace(/\s/g,'').replace(/[^0-9.,]/g,'');if(!x)return null;const n=Number(x.includes(',')?x.replace(/\./g,'').replace(',','.'):x);return Number.isFinite(n)&&n>0?n:null};
+ $('marqImportImage').addEventListener('input',()=>{$('marqImportImagePreview').src=$('marqImportImage').value.trim()});
+ $('marqImportSearch').addEventListener('click',async()=>{
+  const btn=$('marqImportSearch'),url=$('marqImportUrl').value.trim();
+  if(!url){toast('Cole primeiro o link do produto.');return}
+  btn.disabled=true;btn.textContent='Buscando dados…';$('marqImportResult').textContent='Consultando a página do produto…';$('marqImportFields').classList.add('hidden');
+  try{
+   const {data,error}=await client.functions.invoke('marq-import-product',{body:{action:'preview',url}});
+   if(error){let msg=data?.error||error.message;try{const j=await error.context?.clone?.().json();msg=j?.error||msg}catch{}throw new Error(msg)}
+   if(data?.error)throw new Error(data.error);
+   marqFetchedProduct=data.product;
+   $('marqImportTitle').value=data.product.title||'';
+   $('marqImportPrice').value=data.product.price?Number(data.product.price).toFixed(2).replace('.',','):'';
+   $('marqImportCategory').value=data.product.category||'Ofertas';
+   $('marqImportImage').value=data.product.image||'';
+   $('marqImportImagePreview').src=data.product.image||'';
+   $('marqImportFields').classList.remove('hidden');
+   $('marqImportResult').textContent='Dados encontrados: '+(data.product.title||'Título não encontrado')+' • '+(data.product.price?'Preço: '+money(data.product.price):'Preço não encontrado')+' • '+(data.product.image?'Foto encontrada':'Foto não encontrada')+'. Confira os campos abaixo.';
+   toast('Produto localizado. Confira os dados antes de publicar.');
+  }catch(e){marqFetchedProduct=null;$('marqImportResult').textContent='Não foi possível importar automaticamente: '+e.message+' Você pode tentar o link direto do anúncio.';toast(e.message)}
+  finally{btn.disabled=false;btn.textContent='🔎 Buscar dados do produto'}
+ });
+ $('marqImportPublish').addEventListener('click',async()=>{
+  const btn=$('marqImportPublish');if(!marqFetchedProduct)return;
+  const title=$('marqImportTitle').value.trim(),price=marqPriceNumber($('marqImportPrice').value),image=$('marqImportImage').value.trim();
+  if(!title){toast('Informe o nome do produto.');return}
+  btn.disabled=true;btn.textContent='Publicando…';
+  try{
+   const {data,error}=await client.functions.invoke('marq-import-product',{body:{action:'import',url:$('marqImportUrl').value.trim(),affiliate_url:$('marqImportUrl').value.trim(),title,price,image,category:$('marqImportCategory').value.trim()}});
+   if(error){let msg=data?.error||error.message;try{const j=await error.context?.clone?.().json();msg=j?.error||msg}catch{}throw new Error(msg)}
+   if(data?.error)throw new Error(data.error);
+   toast('Produto cadastrado e publicado na vitrine!');
+   $('marqImportResult').textContent='Produto publicado! ID '+data.product.id+'. '+(data.image_found?'Foto vinculada.':'Sem foto; você pode completar pelo painel de fotos.');
+   $('marqImportFields').classList.add('hidden');$('marqImportUrl').value='';marqFetchedProduct=null;
+   await loadData();
+  }catch(e){toast('Falha ao publicar: '+e.message);$('marqImportResult').textContent='Não foi possível publicar: '+e.message}
+  finally{btn.disabled=false;btn.textContent='＋ Cadastrar e publicar na MarQ'}
+ });
  async function checkSession(){const {data,error}=await client.auth.getSession();if(error){status.textContent=error.message;return}if(data.session)await enter(data.session.user)}
  let resizeTimer;window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(!$('app').classList.contains('hidden'))renderOverview()},150)});
  checkSession();
