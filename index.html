@@ -2542,8 +2542,10 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
 
       // Sem busca, a vitrine mostra somente fotos reais.
       // Ao pesquisar, todos os produtos correspondentes continuam acessíveis.
+      const textoPreco = card.querySelector('.preco')?.textContent || '';
+      const temPrecoCadastrado = /R\$\s*[\d.]+(?:,[\d]{2})?/.test(textoPreco);
       const correspondeVitrine = correspondeCategoria && correspondeBusca &&
-        (termos.length > 0 || temFotoReal || card.dataset.marqDynamic === 'true');
+        (termos.length > 0 || ((temFotoReal || card.dataset.marqDynamic === 'true') && temPrecoCadastrado));
       if (correspondeVitrine) totalCorrespondentes += 1;
       const mostrar = correspondeVitrine &&
         (termos.length > 0 || mostrarCatalogoCompleto || visiveis < 8);
