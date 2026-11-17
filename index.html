@@ -3276,5 +3276,50 @@ footer p{color:#d2dce2!important}
 }
 </style>
 
+
+
+<style id="marq-home-order-v4">
+/* Primeira dobra: categorias, banner tecnológico e seis ofertas */
+.category-section{margin:12px auto 18px!important;padding:0!important}
+.category-heading{margin-bottom:11px!important}
+.category-heading .eyebrow{font-size:9px!important;letter-spacing:1.4px!important}
+.category-heading h2{font-size:20px!important;margin-bottom:3px!important}
+.category-heading .section-sub{font-size:11px!important}
+.categorias{gap:8px!important}
+.categoria{min-height:66px!important}
+.marq-campaigns{margin-top:10px!important;margin-bottom:17px!important}
+#ofertas{margin-top:14px!important}
+#ofertas .section-head h2{font-size:22px!important}
+/* Navegação principal fica depois da vitrine inicial */
+body>nav[aria-label="Navegação principal"]{width:94%!important;max-width:1180px!important;margin:18px auto 24px!important;padding:13px 14px!important;border-radius:12px!important;display:flex!important;flex-wrap:wrap!important;justify-content:center!important;gap:10px 22px!important;background:#18344b!important;box-shadow:0 5px 16px rgba(24,52,75,.12)!important}
+body>nav[aria-label="Navegação principal"] a{font-size:12px!important;color:#fff!important}
+@media(max-width:650px){
+ .category-section{margin:8px auto 12px!important}
+ .category-heading h2{font-size:18px!important}
+ .categorias{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .categoria{min-height:58px!important;padding:7px!important}
+ .categoria img{width:42px!important;height:42px!important;min-width:42px!important}
+ .marq-campaigns{margin:8px auto 12px!important}
+ body>nav[aria-label="Navegação principal"]{justify-content:flex-start!important;gap:9px!important;padding:12px!important}
+ body>nav[aria-label="Navegação principal"] a{font-size:11px!important}
+}
+</style>
+<script id="marq-home-order-v4-script">
+(()=>{
+ const arrange=()=>{
+  const nav=document.querySelector('body>nav[aria-label="Navegação principal"]');
+  const categories=document.querySelector('body>.category-section');
+  const campaign=document.querySelector('body>.marq-campaigns');
+  const offers=document.getElementById('ofertas');
+  if(!nav||!categories||!campaign||!offers)return;
+  if(campaign.previousElementSibling!==categories)categories.after(campaign);
+  if(campaign.nextElementSibling!==offers)campaign.after(offers);
+  if(offers.nextElementSibling!==nav)offers.after(nav);
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arrange,{once:true});else arrange();
+ new MutationObserver(arrange).observe(document.body,{childList:true});
+})();
+</script>
+
 </body>
 </html>
