@@ -816,15 +816,21 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
    toast('Link SHEIN recebido. Complete nome e preço que não foram detectados.');
   }
  }
- (function importSheinFromMobileBookmark(){
+ (function importSheinFromMobileShare(){
   const params=new URLSearchParams(location.search);
-  if(params.get('marq_shein')!=='1')return;
+  if(params.get('marq_shein')!=='1'&&!params.has('text')&&!params.has('url'))return;
+  const sharedText=[params.get('text')||'',params.get('url')||''].join(' ').trim();
+  const affiliateMatch=sharedText.match(/https?:\\/\\/(?:onelink\\.shein\\.com|shein\\.onelink\\.me)\\/[^\\s<>"']+/i);
+  const affiliate=(params.get('affiliate')||affiliateMatch?.[0]||'').replace(/[),.;]+$/,'').trim();
+  const priceMatch=sharedText.match(/(?:Preço|Preco)\\s*(?:\\[\\s*)?R\\$\\s*([0-9.]+(?:,[0-9]{1,2})?)/i)||sharedText.match(/R\\$\\s*([0-9.]+(?:,[0-9]{1,2})?)/i);
+  const title=(params.get('title')||'').trim()||sharedText.split(/\\r?\\n/).map(x=>x.trim()).find(x=>x&&!/^https?:\\/\\//i.test(x)&&!/(?:R\\$|Preço|Preco|shein\\.com)/i.test(x))||'';
   const capture={
-   title:(params.get('title')||'').slice(0,180),
-   price:Number(params.get('price')||0),
-   affiliate:(params.get('affiliate')||'').trim(),
+   title:title.slice(0,180),
+   price:Number(params.get('price')||String(priceMatch?.[1]||'').replace(/\\./g,'').replace(',','.'))||0,
+   affiliate,
    image:(params.get('image')||'').trim()
   };
+  if(!capture.affiliate&&!capture.title&&!capture.price)return;
   try{sessionStorage.setItem('marq_shein_pending',JSON.stringify(capture))}catch(e){}
   history.replaceState({},'',location.pathname);
   if(!$('app').classList.contains('hidden'))consumeMobileSheinCapture();
