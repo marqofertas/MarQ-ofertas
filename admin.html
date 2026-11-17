@@ -106,7 +106,12 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
     </div>
    </article>
 <article class="card" style="margin-bottom:16px;border:2px solid #d6ad58">
-    <div class="table-head"><div><h2>Importar oferta da SHEIN</h2><p class="sub">No Centro de Afiliados, toque em Ganhar e copie a mensagem. Se ela vier incompleta, preencha os campos abaixo manualmente.</p></div><span class="pill good">SHEIN</span></div>
+    <div class="table-head"><div><h2>📸 Cadastro rápido com foto + link</h2><p class="sub">Escolha a foto do produto no celular, informe seu link de afiliado e os dados. Ao cadastrar, a imagem será enviada à MarQ e publicada junto com o produto.</p></div><span class="pill good">CADASTRO DIRETO</span></div>
+    <div style="display:grid;grid-template-columns:minmax(0,1fr);gap:12px;padding:14px;border:1px dashed #d6ad58;border-radius:14px;background:#fffaf0;margin-bottom:14px">
+     <label class="field full">1. Foto do produto (JPG, PNG ou WebP; até 5 MB)<input id="sheinPhotoFile" type="file" accept="image/jpeg,image/png,image/webp" style="display:block;width:100%;margin-top:8px;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff"></label>
+     <div id="sheinPhotoPreview" class="hidden" style="align-items:center;gap:12px"><img id="sheinPhotoPreviewImg" alt="Prévia da foto selecionada" style="width:92px;height:112px;object-fit:contain;border-radius:10px;background:#fff;border:1px solid var(--line)"><span id="sheinPhotoFileName" class="hint"></span></div>
+     <p class="hint" style="margin:0">2. Preencha o link de afiliado, nome e preço nos campos abaixo. A foto escolhida será salva no armazenamento da loja, não apenas no seu celular.</p>
+    </div>
     <label class="field full">Mensagem completa copiada da SHEIN<textarea id="sheinAffiliateText" rows="5" placeholder="Cole aqui a mensagem do botão Ganhar. Também pode colar somente o link de afiliado e preencher os campos abaixo." style="display:block;width:100%;margin-top:6px;border:1px solid var(--line);border-radius:10px;padding:12px;font:13px/1.5 inherit;resize:vertical"></textarea></label>
     <div class="form-grid">
      <label class="field">Nome do produto<input id="sheinManualTitle" type="text" placeholder="Ex.: Vestido feminino"></label>
@@ -735,7 +740,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
    const {data:existing,error:lookupError}=await client.from('produtos').select('id,nome').eq('link_afiliado',sheinParsed.link).maybeSingle();
    if(lookupError)throw lookupError;
    if(existing)throw new Error('Este link já está cadastrado na MarQ como “'+existing.nome+'”.');
-   const payload={nome:sheinParsed.title,preco:sheinParsed.price,categoria:'SHEIN',link_afiliado:sheinParsed.link,Imagem:sheinCapturedImage,image_url:sheinCapturedImage,ativo:true,status_preco:'informado_afiliado'};
+   if(sheinPhotoFile){\n    const ext=sheinPhotoFile.type==='image/png'?'png':sheinPhotoFile.type==='image/webp'?'webp':'jpg';\n    const path='shein/'+Date.now()+'-'+crypto.randomUUID()+'.'+ext;\n    const {error:uploadError}=await client.storage.from('produtos').upload(path,sheinPhotoFile,{contentType:sheinPhotoFile.type,upsert:false});\n    if(uploadError)throw new Error('Falha ao enviar a foto: '+uploadError.message);\n    sheinCapturedImage=client.storage.from('produtos').getPublicUrl(path).data.publicUrl;\n   }\n   const payload={nome:sheinParsed.title,preco:sheinParsed.price,categoria:'SHEIN',link_afiliado:sheinParsed.link,Imagem:sheinCapturedImage,image_url:sheinCapturedImage,ativo:true,status_preco:'informado_afiliado'};
    const {data:created,error}=await client.from('produtos').insert(payload).select('id').single();
    if(error)throw error;
    $('sheinImportPreview').innerHTML='<i>…</i><div><b>Produto cadastrado</b>Buscando automaticamente a foto original na SHEIN…</div>';
