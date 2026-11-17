@@ -3100,5 +3100,32 @@ if ("serviceWorker" in navigator) {
  place();new MutationObserver(place).observe(grid,{childList:true});
 })();
 </script>
+
+<style id="marq-red-brand-v2">
+:root{--marq-blue:#8f1728!important;--marq-blue-dark:#64101f!important;--marq-ink:#302326!important;--marq-soft:#fff4f4!important}
+.topline{background:#64101f!important;color:#fff!important}
+.brand-header,.search-wrap{background:linear-gradient(120deg,#8f1728,#64101f)!important}
+.brand-symbol{color:#8f1728!important;box-shadow:0 5px 15px #39091444!important}
+.brand-name em{color:#ffd9de!important}
+.brand-slogan,.brand-promise{color:#ffe9ec!important}
+.search-icon{color:#8f1728!important}
+#limpar-busca{background:#fff0f2!important;color:#8f1728!important}
+nav{background:#64101f!important}
+.marq-shortcut-icon{background:#fff0f2!important;color:#8f1728!important}
+.marq-mid-banner{background:radial-gradient(circle at 90% 20%,#c94a5b 0 12%,transparent 13%),linear-gradient(110deg,#64101f,#a51d35)!important}
+.marq-mid-banner span{color:#ffe9ec!important}
+.marq-mid-banner b{background:#fff!important;color:#8f1728!important}
+#grade-produtos .card .info .botao,#grade-produtos .card .info a.botao{background:#8f1728!important;border-color:#8f1728!important;color:#fff!important}
+#grade-produtos .card .info .botao:hover,#grade-produtos .card .info a.botao:hover{background:#64101f!important}
+#grade-produtos .card .info .sold{color:#8f1728!important;background:#fff0f2!important;border-color:#f0cbd1!important}
+#ofertas{width:94%;max-width:1180px;margin:16px auto 24px!important;padding:18px!important;background:#fff!important;border:1px solid #f0dadd;border-radius:18px;box-shadow:0 5px 20px #64101f0c}
+#ofertas .section-head h2{color:#64101f!important}
+#ofertas .header-tag{color:#8f1728!important;background:#fff0f2!important;border-color:#f0cbd1!important}
+@media(max-width:650px){#ofertas{width:94%;margin:10px auto 18px!important;padding:12px!important;border-radius:14px}#ofertas .section-head h2{font-size:21px!important}}
+</style>
+<script id="marq-products-first-v2">
+(()=>{const move=()=>{const offers=document.getElementById('ofertas'),nav=document.querySelector('nav'),campaign=document.querySelector('.marq-campaigns');if(offers&&nav&&campaign&&offers.previousElementSibling!==nav)nav.after(offers)};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',move,{once:true});else move()})();
+</script>
+
 </body>
 </html>
