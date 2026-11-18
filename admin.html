@@ -953,5 +953,38 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
 <script>
 if("serviceWorker"in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}))}
 </script>
+
+<script id="marq-login-rescue-v56">
+// Recuperação independente: funciona mesmo se a inicialização principal do painel falhar.
+(()=>{
+ const button=document.getElementById('loginButton');
+ const form=document.getElementById('loginForm');
+ const status=document.getElementById('status');
+ if(!button||!form||!status)return;
+ const clean=button.cloneNode(true);button.replaceWith(clean);
+ const say=message=>{status.textContent=message};
+ const authenticate=async event=>{
+  event?.preventDefault();
+  if(clean.disabled)return;
+  const email=document.getElementById('email')?.value.trim();
+  const password=document.getElementById('password')?.value||'';
+  if(!email||!password){say('Informe seu e-mail e sua senha.');return}
+  if(!window.supabase?.createClient){say('O serviço de autenticação não carregou. Verifique a conexão e recarregue o painel.');return}
+  clean.disabled=true;clean.textContent='Validando acesso…';say('Conectando ao serviço de autenticação…');
+  try{
+   const client=window.supabase.createClient('https://zonclgsfqtylnedxigxd.supabase.co','sb_publishable_7Oi8lKwThZ2kKQUVxUT-oQ_3O-4_mSK',{auth:{storageKey:'marq-admin-auth-v2',persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+   const {data,error}=await client.auth.signInWithPassword({email,password});
+   if(error)throw error;
+   if(data?.user?.id!=='89fdb1b1-c59d-4928-8b7d-8e604046d456'){
+    await client.auth.signOut();throw new Error('Esta conta não está autorizada para administrar a MarQ.');
+   }
+   say('Acesso confirmado. Abrindo o painel…');
+   window.location.replace(window.location.pathname+'?v=56&login=ok');
+  }catch(error){say('Não foi possível entrar: '+(error?.message||String(error)));clean.disabled=false;clean.textContent='Entrar no painel →'}
+ };
+ clean.addEventListener('click',authenticate);
+ form.addEventListener('submit',authenticate);
+})();
+</script>
 </body>
 </html>
