@@ -1661,6 +1661,8 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
     <label for="ordenar" class="header-tag">Ordenar:
       <select id="ordenar">
         <option value="destaques">Mais vendidos primeiro</option>
+        <option value="menor-preco">Menor preço</option>
+        <option value="maior-preco">Maior preço</option>
         <option value="az">Nome: A a Z</option>
       </select>
     </label>
@@ -2595,6 +2597,13 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
     return quantidade * (unidade.startsWith('milhao') ? 1000000 : unidade === 'mil' ? 1000 : 1);
   }
 
+  function precoNumerico(card) {
+    const texto = card.querySelector('.preco')?.textContent || '';
+    const match = texto.match(/R\$\s*([\d.]+(?:,[\d]{2})?)/);
+    if (!match) return Number.POSITIVE_INFINITY;
+    return Number(match[1].replace(/\./g, '').replace(',', '.'));
+  }
+
   function ordenarCards() {
     const lista = [...cards];
     if (ordenar?.value === 'az') {
@@ -2603,6 +2612,10 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
           b.querySelector('h3')?.textContent || '', 'pt-BR'
         )
       );
+    } else if (ordenar?.value === 'menor-preco') {
+      lista.sort((a, b) => precoNumerico(a) - precoNumerico(b) || cards.indexOf(a) - cards.indexOf(b));
+    } else if (ordenar?.value === 'maior-preco') {
+      lista.sort((a, b) => precoNumerico(b) - precoNumerico(a) || cards.indexOf(a) - cards.indexOf(b));
     } else {
       // Primeiro os produtos com quantidade de vendas informada no anúncio.
       // Empates e produtos sem esse dado mantêm a ordem original do catálogo.
