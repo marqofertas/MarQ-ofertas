@@ -3696,5 +3696,52 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{ou
 .marq-daily-info>strong{color:var(--marq-green-dark)!important}
 @media(max-width:650px){#grade-produtos .card .preco,#grade-produtos .card .preco.promo-price{font-size:18px!important;padding:9px!important}}
 </style>
+
+<script id="marq-featured-product-64">
+/* MARQ — destaque promocional do Guarda-Roupa Mônaco */
+(async()=>{
+ const endpoint='https://zonclgsfqtylnedxigxd.supabase.co/rest/v1/produtos?select=id,nome,preco,preco_anterior,categoria,link_afiliado,image_url,Imagem,ativo&id=eq.64&ativo=eq.true&limit=1';
+ const key='sb_publishable_7Oi8lKwThZ2kKQUVxUT-oQ_3O-4_mSK';
+ const grid=document.getElementById('grade-produtos');
+ if(!grid)return;
+ const money=v=>Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+ const safe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const norm=v=>{try{const u=new URL(v,location.href);return(u.origin.toLowerCase()+u.pathname).replace(/\/$/,'')}catch(e){return String(v||'').trim()}};
+ try{
+  const res=await fetch(endpoint,{headers:{apikey:key,Authorization:'Bearer '+key},cache:'no-store'});
+  if(!res.ok)throw new Error('HTTP '+res.status);
+  const rows=await res.json(),p=rows[0];
+  if(!p||!p.link_afiliado)return;
+  const exists=[...grid.querySelectorAll('a.botao[href]')].some(a=>norm(a.href)===norm(p.link_afiliado));
+  if(exists)return;
+  const current=Number(p.preco),old=Number(p.preco_anterior);
+  if(!(current>0))return;
+  const savings=old>current?old-current:0;
+  const discount=savings>0?Math.round((savings/old)*100):0;
+  const title=p.nome||'Guarda-Roupa Casal Mônaco Madesa';
+  const image=p.image_url||p.Imagem||'';
+  const url=p.link_afiliado;
+  const card=document.createElement('article');
+  card.className='card';
+  card.dataset.productId=String(p.id);
+  card.dataset.category='casa';
+  card.dataset.tags='casa móveis guarda roupa madesa monaco quarto '+title.toLocaleLowerCase('pt-BR');
+  const imageMarkup=image
+   ? '<img src="'+safe(image)+'" alt="'+safe(title)+'" loading="lazy" referrerpolicy="no-referrer">'
+   : '<div class="product-placeholder" role="img" aria-label="Imagem do produto não disponível"><span>MARQ OFERTAS</span><b>GUARDA-ROUPA MÔNACO</b></div>';
+  card.innerHTML='<a class="produto-imagem-link" href="'+safe(url)+'" target="_blank" rel="sponsored noopener noreferrer" aria-label="Ver oferta de '+safe(title)+'">'+imageMarkup+'</a>'+
+   '<div class="info"><div class="promo-card-label"><span>🔥 OFERTA IMPERDÍVEL</span><b>'+discount+'% OFF</b></div>'+
+   '<h3><a class="produto-titulo-link" href="'+safe(url)+'" target="_blank" rel="sponsored noopener noreferrer">'+safe(title)+'</a></h3>'+
+   '<span class="sold">3 PORTAS DE CORRER • COM ESPELHO • PRETO</span>'+
+   '<div class="preco promo-price"><strong>'+money(current)+'</strong>'+(savings>0?'<small class="old-price">De '+money(old)+'</small><small>Você economiza '+money(savings)+'</small>':'')+'</div>'+
+   '<a class="detalhes-link" href="'+safe(url)+'" target="_blank" rel="sponsored noopener noreferrer">CONFERIR DETALHES DO PRODUTO</a>'+
+   '<a class="botao" href="'+safe(url)+'" target="_blank" rel="sponsored noopener noreferrer">🛒 COMPRAR NO MERCADO LIVRE</a></div>';
+  grid.prepend(card);
+  const count=document.getElementById('contador');
+  if(count){const n=grid.querySelectorAll('.card:not([hidden])').length;count.textContent=n+(n===1?' oferta encontrada':' ofertas encontradas')}
+ }catch(e){console.warn('[MarQ] Não foi possível carregar o destaque do Guarda-Roupa Mônaco:',e)}
+})();
+</script>
+
 </body>
 </html>
