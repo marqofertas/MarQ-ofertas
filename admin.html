@@ -315,10 +315,25 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
    await enter(data.user);
   }catch(err){
    console.error('Erro no login MarQ',err);
-   app.classList.add('hidden');
-   login.classList.remove('hidden');
-   $('logout').classList.add('hidden');
-   status.textContent='Não foi possível concluir o acesso: '+(err?.message||String(err));
+   // Uma falha ao montar o painel não pode apagar uma autenticação já aceita.
+   let authenticatedAdmin=false;
+   try{
+    const {data}=await client.auth.getUser();
+    authenticatedAdmin=!!data?.user&&data.user.id===ADMIN_ID;
+   }catch(checkError){console.error('Falha ao confirmar sessão após login',checkError)}
+   if(authenticatedAdmin){
+    login.classList.add('hidden');
+    app.classList.remove('hidden');
+    $('logout').classList.remove('hidden');
+    const message='Acesso autenticado. Falha ao preparar um recurso do painel: '+(err?.message||String(err));
+    status.textContent=message;
+    showError(message);
+   }else{
+    app.classList.add('hidden');
+    login.classList.remove('hidden');
+    $('logout').classList.add('hidden');
+    status.textContent='Não foi possível concluir o acesso: '+(err?.message||String(err));
+   }
   }finally{
    button.disabled=false;
    button.textContent='Entrar no painel →';
