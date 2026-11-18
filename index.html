@@ -3325,9 +3325,9 @@ body>nav[aria-label="Navegação principal"] a{font-size:12px!important;color:#f
   const campaign=document.querySelector('body>.marq-campaigns');
   const offers=document.getElementById('ofertas');
   if(!nav||!categories||!campaign||!offers)return;
-  if(campaign.previousElementSibling!==categories)categories.after(campaign);
-  if(campaign.nextElementSibling!==offers)campaign.after(offers);
-  if(offers.nextElementSibling!==nav)offers.after(nav);
+  if(campaign.previousElementSibling!==nav)nav.after(campaign);
+  if(campaign.nextElementSibling!==categories)campaign.after(categories);
+  if(categories.nextElementSibling!==offers)categories.after(offers);
  };
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arrange,{once:true});else arrange();
  new MutationObserver(arrange).observe(document.body,{childList:true});
@@ -3516,6 +3516,57 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{ou
    const a=e.target.closest('a');if(!a)return;
    nav.querySelectorAll('a').forEach(x=>x.removeAttribute('aria-current'));
    a.setAttribute('aria-current','page');
+  });
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
+})();
+</script>
+
+
+<style id="marq-retail-discovery-v1">
+/* Experiência de descoberta inspirada em grandes varejistas */
+.marq-discovery{width:92%;max-width:1180px;margin:13px auto 5px;padding:16px 18px 15px;background:#fff;border:1px solid #e7edf1;border-radius:16px;box-shadow:0 5px 18px rgba(24,52,75,.045)}
+.marq-discovery-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px}
+.marq-discovery-head strong{display:block;color:#18344b;font-size:14px;font-weight:900;letter-spacing:-.2px}
+.marq-discovery-head small{display:block;color:#788792;font-size:11px;margin-top:3px}
+.marq-discovery-head a{color:#8a642b;font-size:11px;font-weight:850;text-decoration:none;white-space:nowrap}
+.marq-discovery-chips{display:flex;gap:8px;overflow-x:auto;padding:1px 1px 5px;scrollbar-width:none}
+.marq-discovery-chips::-webkit-scrollbar{display:none}
+.marq-discovery-chip{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;border:1px solid #e6ebef;border-radius:999px;background:#f7f9fa;color:#304b5e;padding:9px 12px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap}
+.marq-discovery-chip:hover,.marq-discovery-chip:focus-visible{border-color:#c6a15b;background:#fffaf0;color:#785927}
+.marq-discovery-chip span{font-size:14px}
+#busca{border:1px solid #dce4e9!important;box-shadow:0 4px 16px rgba(24,52,75,.055)!important}
+#busca::placeholder{color:#87949d}
+#limpar-busca{background:#f1f4f6!important;color:#526878!important}
+@media(max-width:650px){
+ .marq-discovery{width:calc(100% - 24px)!important;margin:8px auto 10px!important;padding:12px!important;border-radius:13px!important}
+ .marq-discovery-head{margin-bottom:9px}
+ .marq-discovery-head strong{font-size:13px}
+ .marq-discovery-head small{font-size:10px}
+ .marq-discovery-chip{padding:8px 10px;font-size:10px}
+}
+</style>
+<script id="marq-retail-discovery-v1-script">
+(()=>{
+ const mount=()=>{
+  if(document.querySelector('.marq-discovery'))return;
+  const search=document.querySelector('.search-wrap');
+  if(!search)return;
+  const panel=document.createElement('section');
+  panel.className='marq-discovery';
+  panel.setAttribute('aria-label','Encontre produtos por necessidade');
+  panel.innerHTML='<div class="marq-discovery-head"><div><strong>O que você está procurando hoje?</strong><small>Toque em um tema e veja os achadinhos disponíveis.</small></div><a href="#categorias">Ver categorias →</a></div><div class="marq-discovery-chips"><button class="marq-discovery-chip" type="button" data-query="casa"><span>🏠</span> Casa prática</button><button class="marq-discovery-chip" type="button" data-query="eletronicos"><span>📱</span> Tecnologia</button><button class="marq-discovery-chip" type="button" data-query="moda"><span>👗</span> Moda</button><button class="marq-discovery-chip" type="button" data-query="beleza"><span>✨</span> Beleza</button><button class="marq-discovery-chip" type="button" data-query="esportes"><span>🏃</span> Esportes</button><button class="marq-discovery-chip" type="button" data-query="achadinhos"><span>💛</span> Achadinhos</button></div>';
+  search.after(panel);
+  panel.addEventListener('click',e=>{
+   const chip=e.target.closest('[data-query]');
+   if(!chip)return;
+   const query=chip.getAttribute('data-query');
+   const category=document.querySelector('.category-section [data-filter="'+query+'"]');
+   if(category){category.click();document.getElementById('ofertas')?.scrollIntoView({behavior:'smooth',block:'start'});}
+   else{
+    const input=document.getElementById('busca');
+    if(input){input.value=query;input.dispatchEvent(new Event('input',{bubbles:true}));document.getElementById('ofertas')?.scrollIntoView({behavior:'smooth',block:'start'});}
+   }
   });
  };
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
