@@ -2493,7 +2493,7 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
     }
     const encontrados = cards.filter((card) => {
       const precoValido = /R\$\s*[\d.]+(?:,[\d]{2})?/.test(card.querySelector('.preco')?.textContent || '');
-      if (card.dataset.marqFotoValida !== 'true' || !precoValido) return false;
+      if ((card.dataset.marqFotoValida !== 'true' && card.dataset.marqDynamic !== 'true') || (!precoValido && card.dataset.marqDynamic !== 'true')) return false;
       const titulo = normalizar(card.querySelector('h3')?.textContent || '');
       const buscaCompleta = normalizar([card.dataset.search, titulo, card.dataset.tags || ''].join(' '));
       return termo.split(/\s+/).every((parte) => buscaCompleta.includes(parte));
