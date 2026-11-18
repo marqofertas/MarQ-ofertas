@@ -378,12 +378,12 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
  }
  $('loginForm').addEventListener('submit',async e=>{
   e.preventDefault();const button=$('loginButton');button.disabled=true;button.textContent='Validando acesso…';status.textContent='Conferindo seus dados…';
-  try{const {data,error}=await client.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)throw error;await enter(data.user)}
-  catch(err){console.error('Erro no login MarQ',err);status.textContent='Não foi possível concluir o acesso: '+(err?.message||String(err))}
+  try{const {data,error}=await client.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)throw error;if(!data?.user)throw new Error('O Supabase não retornou o usuário autenticado. Tente novamente.');await enter(data.user)}
+  catch(err){console.error('Erro no login MarQ',err);app.classList.add('hidden');login.classList.remove('hidden');$('logout').classList.add('hidden');status.textContent='Não foi possível concluir o acesso: '+(err?.message||String(err))}
   finally{button.disabled=false;button.textContent='Entrar no painel →'}
  });
  $('logout').addEventListener('click',async()=>{await client.auth.signOut();location.reload()});
- client.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){app.classList.add('hidden');login.classList.remove('hidden');$('logout').classList.add('hidden');status.textContent='Sessão encerrada. Entre novamente para acessar o painel.';}else if(session&&session.user?.id===ADMIN_ID){login.classList.add('hidden');app.classList.remove('hidden');$('logout').classList.remove('hidden');}});
+ // A interface é controlada pelo fluxo explícito de login e pelo checkSession().\n // Ignorar eventos de autenticação atrasados que reexibiam o formulário após o login.
  $('refresh').addEventListener('click',loadData);$('periodFilter').addEventListener('change',renderAll);$('productSearch').addEventListener('input',renderCatalog);
  async function loadMlStatus(){
   const badge=$('mlConnectionStatus'),uri=$('mlRedirectUri'),help=$('mlConnectHelp');
