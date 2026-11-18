@@ -398,7 +398,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
   }catch(e){sheinBotStatus.innerHTML='<i>!</i><div><b>Não foi possível concluir o garimpo</b>'+safe(e.message)+'</div>'}
   finally{b.disabled=false;b.textContent='✦ Garimpar agora'}
  });
-  const sheinBookmarklet='javascript:(()=>{const m=s=>document.querySelector(s)?.content||\'\';const title=(m(\'meta[property="og:title"]\')||document.querySelector(\'h1\')?.innerText||document.title||\'\').replace(/\\s+/g,\' \').trim().slice(0,180);const image=m(\'meta[property="og:image"]\')||m(\'meta[name="twitter:image"]\');const price=m(\'meta[property="product:price:amount"]\')||m(\'meta[property="og:price:amount"]\');const affiliate=prompt(\'Cole o link gerado pelo botão Ganhar no Centro de Afiliados SHEIN:\');if(!affiliate)return;if(!/^https:\\/\\/(?:onelink\\.shein\\.com|shein\\.onelink\\.me)\\//i.test(affiliate.trim())){alert(\'Link de afiliado SHEIN inválido.\');return;}const u=new URL(\'https://marqofertas.github.io/MarQ-ofertas/admin.html\');u.searchParams.set(\'marq_shein\',\'1\');u.searchParams.set(\'title\',title);u.searchParams.set(\'image\',image);u.searchParams.set(\'price\',price);u.searchParams.set(\'affiliate\',affiliate.trim());location.href=u.toString();})();';
+  const sheinBookmarklet='javascript:(()=>{const m=s=>document.querySelector(s)?.content||\'\';const title=(m(\'meta[property="og:title"]\')||document.querySelector(\'h1\')?.innerText||document.title||\'\').replace(/\\s+/g,\' \').trim().slice(0,180);const image=m(\'meta[property="og:image"]\')||m(\'meta[name="twitter:image"]\');const price=m(\'meta[property="product:price:amount"]\')||m(\'meta[property="og:price:amount"]\');const affiliate=prompt(\'Cole o link gerado pelo botão Ganhar no Centro de Afiliados SHEIN:\');if(!affiliate)return;if(!/^https:\/\/(?:onelink\\.shein\\.com|shein\\.onelink\\.me)\//i.test(affiliate.trim())){alert(\'Link de afiliado SHEIN inválido.\');return;}const u=new URL(\'https://marqofertas.github.io/MarQ-ofertas/admin.html\');u.searchParams.set(\'marq_shein\',\'1\');u.searchParams.set(\'title\',title);u.searchParams.set(\'image\',image);u.searchParams.set(\'price\',price);u.searchParams.set(\'affiliate\',affiliate.trim());location.href=u.toString();})();';
  $('sheinBookmarkletCode').value=sheinBookmarklet;
  $('copySheinBookmarklet').addEventListener('click',async()=>{
   const btn=$('copySheinBookmarklet'),field=$('sheinBookmarkletCode');
@@ -769,7 +769,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
   const preview=$('sheinPhotoPreview'),img=$('sheinPhotoPreviewImg'),label=$('sheinPhotoFileName');
   if(sheinPhotoPreviewUrl){URL.revokeObjectURL(sheinPhotoPreviewUrl);sheinPhotoPreviewUrl=null}
   if(!file){preview.classList.add('hidden');img.removeAttribute('src');label.textContent='';return}
-  if(!/^image\\/(jpeg|png|webp)$/i.test(file.type)||file.size>5*1024*1024){
+  if(!/^image\/(jpeg|png|webp)$/i.test(file.type)||file.size>5*1024*1024){
    $('sheinPhotoFile').value='';preview.classList.add('hidden');img.removeAttribute('src');
    toast('Escolha uma foto JPG, PNG ou WebP de até 5 MB.');return;
   }
@@ -838,7 +838,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
     const {error:uploadError}=await client.storage.from('produtos').upload(path,selectedPhoto,{contentType:selectedPhoto.type,upsert:false,cacheControl:'3600'});
     if(uploadError)throw new Error('Falha ao enviar a foto: '+uploadError.message+'. O produto não foi cadastrado; tente novamente.');
     sheinCapturedImage=client.storage.from('produtos').getPublicUrl(path).data.publicUrl;
-    if(!sheinCapturedImage||!/^https:\\/\\//i.test(sheinCapturedImage))throw new Error('A foto foi enviada, mas não foi possível gerar o endereço público. O produto não foi cadastrado.');
+    if(!sheinCapturedImage||!/^https:\/\//i.test(sheinCapturedImage))throw new Error('A foto foi enviada, mas não foi possível gerar o endereço público. O produto não foi cadastrado.');
    }
    const payload={nome:sheinParsed.title,preco:sheinParsed.price,categoria:'SHEIN',link_afiliado:sheinParsed.link,Imagem:sheinCapturedImage,image_url:sheinCapturedImage,ativo:true,status_preco:'informado_afiliado'};
    const {data:created,error}=await client.from('produtos').insert(payload).select('id').single();
