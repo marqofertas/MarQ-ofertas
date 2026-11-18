@@ -2367,16 +2367,17 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
   const vazio = document.getElementById('sem-resultados');
   if (!busca || !grade || !contador || !vazio) return;
 
+  // Configuração compartilhada do catálogo e das ofertas do dia.
+  const MARQ_SUPABASE_URL = 'https://zonclgsfqtylnedxigxd.supabase.co';
+  const MARQ_PUBLIC_KEY = 'sb_publishable_7Oi8lKwThZ2kKQUVxUT-oQ_3O-4_mSK';
+  const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   // MARQ-DAILY-OFFERS-V1
   try {
     const dr=await fetch(MARQ_SUPABASE_URL+'/rest/v1/marq_ofertas_dia?select=id,chamada,video_url,inicio,fim,ordem,produtos!inner(id,nome,preco,link_afiliado,Imagem,image_url)&ativo=eq.true&order=ordem.asc&limit=5',{headers:{apikey:MARQ_PUBLIC_KEY},cache:'no-store'});
     if(!dr.ok)throw new Error('HTTP '+dr.status);const dailyRows=await dr.json(),dg=document.getElementById('marq-daily-grid');
     if(dg)dg.innerHTML=dailyRows.length?dailyRows.map(x=>{const p=x.produtos||{},name=String(p.nome||'Oferta selecionada'),img=String(p.image_url||p.Imagem||''),link=String(p.link_afiliado||''),video=String(x.video_url||'');if(!link.startsWith('https://'))return '';const price=p.preco==null?'Consulte o anúncio':Number(p.preco).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});return '<article class="marq-daily-card">'+(img?'<img src="'+escapeHtml(img)+'" alt="'+escapeHtml(name)+'" loading="lazy" referrerpolicy="no-referrer">':'<div class="marq-daily-noimage">MARQ OFERTAS</div>')+'<div class="marq-daily-info"><span class="marq-daily-tag">OFERTA SELECIONADA</span><h4>'+escapeHtml(name)+'</h4><strong>'+escapeHtml(price)+'</strong>'+(x.chamada?'<p>'+escapeHtml(x.chamada)+'</p>':'')+(video.startsWith('https://')?'<a class="marq-daily-video" href="'+escapeHtml(video)+'" target="_blank" rel="noopener noreferrer">▶ Assistir demonstração</a>':'')+'<a class="marq-daily-buy" href="'+escapeHtml(link)+'" target="_blank" rel="sponsored noopener noreferrer">CONFERIR OFERTA →</a><small>Preço e disponibilidade podem mudar na loja parceira.</small></div></article>';}).join('')||'<p class="marq-daily-empty">Estamos preparando novas oportunidades. Volte em breve!</p>':'<p class="marq-daily-empty">Estamos preparando novas oportunidades. Volte em breve!</p>';
   }catch(e){console.warn('[MarQ] Ofertas do Dia:',e);const dg=document.getElementById('marq-daily-grid');if(dg)dg.innerHTML='<p class="marq-daily-empty">Não foi possível carregar as ofertas agora.</p>';}
-  // MARQ-DYNAMIC-CATALOG-V1: novos produtos ativos do painel entram na vitrine automaticamente.
-  const MARQ_SUPABASE_URL = 'https://zonclgsfqtylnedxigxd.supabase.co';
-  const MARQ_PUBLIC_KEY = 'sb_publishable_7Oi8lKwThZ2kKQUVxUT-oQ_3O-4_mSK';
-  const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  // MARQ-DYNAMIC-CATALOG-V2: produtos novos do painel entram no topo, mesmo sem preço ou foto.
   const normalizarCategoria = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
   const categoriaProduto = (categoria, nome) => {
     const c = normalizarCategoria(categoria), n = normalizarCategoria(nome);
@@ -2389,7 +2390,7 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
     return 'achadinhos';
   };
   try {
-    const response = await fetch(MARQ_SUPABASE_URL + '/rest/v1/produtos?select=id,nome,preco,categoria,link_afiliado,ativo,Imagem,image_url&ativo=eq.true&preco=gt.0&link_afiliado=not.is.null&order=created_at.desc&limit=1000', {
+    const response = await fetch(MARQ_SUPABASE_URL + '/rest/v1/produtos?select=id,nome,preco,categoria,link_afiliado,ativo,Imagem,image_url&ativo=eq.true&link_afiliado=not.is.null&order=created_at.desc&limit=1000', {
       headers: { apikey: MARQ_PUBLIC_KEY },
       cache: 'no-store'
     });
@@ -2399,7 +2400,7 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
     rows.forEach(product => {
       const id = String(product.id || '');
       const affiliate = String(product.link_afiliado || '');
-      if (!id || !affiliate || existingIds.has(id) || !Number.isFinite(Number(product.preco)) || Number(product.preco) <= 0) return;
+      if (!id || !affiliate || existingIds.has(id)) return;
       let affiliateHost = '';
       try { affiliateHost = new URL(affiliate).hostname.toLowerCase(); } catch (_) { return; }
       if (!affiliate.startsWith('https://')) return;
@@ -2407,12 +2408,12 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
       const category = categoriaProduto(product.categoria, product.nome);
       const title = String(product.nome || ('Oferta #' + id));
       const image = String(product.image_url || product.Imagem || '');
-      if (!/^https:\/\//i.test(image)) return;
+      const temImagemValida = /^https:\/\//i.test(image);
       const detailUrl = './produto.html?id=' + encodeURIComponent(id);
       const price = product.preco == null || product.preco === '' ? 'Consulte o anúncio' : Number(product.preco).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-      const imageMarkup = image
+      const imageMarkup = temImagemValida
         ? '<img src="' + escapeHtml(image) + '" alt="' + escapeHtml(title) + '" loading="lazy" referrerpolicy="no-referrer">'
-        : '<div class="product-placeholder" role="img" aria-label="Foto original ainda não disponível"><span>' + escapeHtml(platform.toUpperCase()) + '</span><b>OFERTA NOVA</b><small>Foto em atualização</small></div>';
+        : '<div class="product-placeholder" role="img" aria-label="Foto original ainda não disponível"><span>' + escapeHtml(platform.toUpperCase()) + '</span><b>OFERTA NOVA</b><small>Confira as fotos no anúncio</small></div>';
       const card = document.createElement('article');
       card.className = 'card';
       card.dataset.category = category;
@@ -2427,7 +2428,8 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
         '<div class="preco">' + escapeHtml(price) + '<small>Preço informado no cadastro; sujeito a alteração</small></div>' +
         '<a class="detalhes-link" href="' + detailUrl + '">VER PRODUTO E DETALHES</a>' +
         '<a class="botao" href="' + escapeHtml(affiliate) + '" target="_blank" rel="sponsored noopener noreferrer">COMPRAR AGORA</a></div>';
-      grade.appendChild(card);
+      // A API vem do mais novo para o mais antigo; inserir em ordem reversa mantém os recentes no topo.
+      grade.insertBefore(card, grade.firstElementChild);
       existingIds.add(id);
     });
   } catch (error) {
@@ -2458,7 +2460,7 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
     const chave = item.dataset.filter || 'todos';
     const quantidade = cards.filter((card) => {
       const precoValido = /R\$\s*[\d.]+(?:,[\d]{2})?/.test(card.querySelector('.preco')?.textContent || '');
-      if (card.dataset.marqFotoValida !== 'true' || !precoValido) return false;
+      if ((card.dataset.marqFotoValida !== 'true' && card.dataset.marqDynamic !== 'true') || (!precoValido && card.dataset.marqDynamic !== 'true')) return false;
       if (chave === 'todos') return true;
       if (chave === 'achadinhos') return (card.dataset.tags || '').split(/\s+/).includes('achadinhos');
       return card.dataset.category === chave;
@@ -2558,10 +2560,11 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
       // Ao pesquisar, todos os produtos correspondentes continuam acessíveis.
       const textoPreco = card.querySelector('.preco')?.textContent || '';
       const temPrecoCadastrado = /R\$\s*[\d.]+(?:,[\d]{2})?/.test(textoPreco);
-      const correspondeVitrine = correspondeCategoria && correspondeBusca && temFotoReal && temPrecoCadastrado;
+      const produtoDoPainel = card.dataset.marqDynamic === 'true';
+      const correspondeVitrine = correspondeCategoria && correspondeBusca && (temFotoReal || produtoDoPainel) && (temPrecoCadastrado || produtoDoPainel);
       if (correspondeVitrine) totalCorrespondentes += 1;
       const mostrar = correspondeVitrine &&
-        (termos.length > 0 || mostrarCatalogoCompleto || visiveis < 6);
+        (termos.length > 0 || mostrarCatalogoCompleto || visiveis < 8);
       card.hidden = !mostrar;
       if (mostrar) visiveis += 1;
     });
