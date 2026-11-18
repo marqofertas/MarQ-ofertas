@@ -3624,5 +3624,26 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{ou
 @media(prefers-reduced-motion:reduce){#grade-produtos>.card{transition:none!important}}
 </style>
 
+
+<style id="marq-placeholder-transparency-v1">
+/* Identificação explícita de imagens provisórias no catálogo */
+#grade-produtos .product-placeholder{position:relative!important;padding:34px 12px 14px!important}
+#grade-produtos .product-placeholder::before{
+ content:"FOTO ILUSTRATIVA";position:absolute;top:10px;left:50%;transform:translateX(-50%);
+ display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;
+ padding:5px 8px;border:1px solid #ead9b2;border-radius:999px;
+ background:#fff8e8;color:#76551e;font-size:8px;font-weight:900;letter-spacing:.65px;line-height:1.2
+}
+#grade-produtos .product-placeholder::after{
+ content:"Confira as fotos reais no anúncio";display:block;margin-top:5px;
+ color:#7b8791;font-size:9px;font-weight:650;line-height:1.3;text-align:center
+}
+@media(max-width:650px){
+ #grade-produtos .product-placeholder{padding:31px 7px 10px!important}
+ #grade-produtos .product-placeholder::before{top:7px;font-size:7px;padding:4px 6px}
+ #grade-produtos .product-placeholder::after{font-size:8px}
+}
+</style>
+
 </body>
 </html>
