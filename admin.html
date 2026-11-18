@@ -9,6 +9,7 @@
 <link rel="icon" href="./icons/painel-192.svg" type="image/svg+xml">
 <title>MarQ Admin | Central de comando</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
 :root{color-scheme:light;--navy:#54101d;--navy2:#64101f;--blue:#d6ad58;--lime:#d6ad58;--orange:#b42335;--ink:#302326;--muted:#806c6b;--line:#eadfc9;--paper:#fbf9f7;--white:#fff;--green:#8f1728;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
 *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink)}button,input,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -37,7 +38,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
 <section id="login">
  <div class="brand" style="color:var(--navy);margin-bottom:22px"><span class="brand-mark">Q</span><span>MarQ Admin <small style="color:#fff9ed">ACESSO RESTRITO</small></span></div>
  <h1>Bem-vindo de volta.</h1><p>Entre com o e-mail e a senha da conta administradora do Supabase para acessar os números da sua loja.</p>
- <form id="loginForm">
+ <form id="loginForm" onsubmit="return false">
   <label class="field">E-mail<input id="email" type="email" autocomplete="username" required></label>
   <label class="field">Senha<input id="password" type="password" autocomplete="current-password" required></label>
   <button class="btn" id="loginButton" type="submit">Entrar no painel →</button>
@@ -297,8 +298,13 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
  const URL='https://zonclgsfqtylnedxigxd.supabase.co';
  const KEY='sb_publishable_7Oi8lKwThZ2kKQUVxUT-oQ_3O-4_mSK';
  const ADMIN_ID='89fdb1b1-c59d-4928-8b7d-8e604046d456';
- const client=window.supabase.createClient(URL,KEY,{auth:{storageKey:'marq-admin-auth-v2',persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
  const $=id=>document.getElementById(id);
+ if(!window.supabase?.createClient){
+  $('status').textContent='Não foi possível carregar o serviço de autenticação. Verifique a internet e recarregue esta página.';
+  $('loginForm').addEventListener('submit',e=>{e.preventDefault();$('status').textContent='Serviço de autenticação indisponível. Recarregue a página e tente novamente.';});
+  return;
+ }
+ const client=window.supabase.createClient(URL,KEY,{auth:{storageKey:'marq-admin-auth-v2',persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
  $('loginForm').addEventListener('submit',async e=>{
   e.preventDefault();
   const button=$('loginButton');
