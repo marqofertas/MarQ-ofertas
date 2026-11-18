@@ -1516,6 +1516,13 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
 #grade-produtos .promo-card-label b,.promo-card-label b{background:var(--marq-green)!important;color:#fff!important}
 .promo-badge,.discount-badge,.desconto,.garimpo-discount{background:#e5f5e9!important;color:var(--marq-green-dark)!important;border:1px solid var(--marq-green-line)!important}
 </style>
+
+<style id="marq-product-gallery-v2">
+#grade-produtos .produto-imagem-link.produto-galeria{position:relative;display:block}
+#grade-produtos .produto-galeria .galeria-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:4;width:34px;height:34px;border:0;border-radius:50%;background:#16833b;color:#fff;font-size:25px;line-height:1;display:grid;place-items:center;box-shadow:0 2px 9px #0003;cursor:pointer}
+#grade-produtos .produto-galeria .galeria-prev{left:7px}#grade-produtos .produto-galeria .galeria-next{right:7px}
+#grade-produtos .produto-galeria .galeria-count{position:absolute;right:8px;bottom:8px;z-index:4;background:#16833b;color:#fff;border-radius:20px;padding:3px 8px;font-size:11px;font-weight:800}
+</style>
 </head>
 <body>
 <a class="skip-link" href="#ofertas">Pular para as ofertas</a>
@@ -2984,32 +2991,46 @@ if ("serviceWorker" in navigator) {
 #grade-produtos .card .botao:hover{background:#292929!important;border-color:#292929!important}
 </style>
 <script>
-/* MARQ-PRODUCT-GALLERY-V1 */
+/* MARQ-PRODUCT-GALLERY-V2 — suporta cards estáticos e produtos carregados depois */
 (async()=>{
  const base='https://zonclgsfqtylnedxigxd.supabase.co/rest/v1/',key='sb_publishable_7Oi8lKwThZ2kKQUVxUT-oQ_3O-4_mSK';
  const headers={apikey:key,Authorization:'Bearer '+key};
- const norm=v=>{try{const u=new URL(v,location.href);return(u.origin.toLowerCase()+u.pathname).replace(/\/$/,'')}catch(e){return String(v||'').trim()}};
+ const norm=v=>{try{const u=new URL(v,location.href);return(u.origin.toLowerCase()+u.pathname).replace(/\\/$/,'')}catch(e){return String(v||'').trim()}};
+ const applied=new WeakSet();
  try{
   const [pr,ir]=await Promise.all([
-   fetch(base+'produtos?select=id,link_afiliado&limit=1000',{headers,cache:'no-store'}),
+   fetch(base+'produtos?select=id,link_afiliado,image_url,Imagem&limit=1000',{headers,cache:'no-store'}),
    fetch(base+'produto_imagens?select=produto_id,image_url,ordem&order=ordem.asc&limit=5000',{headers,cache:'no-store'})
   ]);
   if(!pr.ok||!ir.ok)throw new Error('HTTP '+(!pr.ok?pr.status:ir.status));
   const products=await pr.json(),rows=await ir.json(),idByLink=new Map(products.filter(x=>x.link_afiliado).map(x=>[norm(x.link_afiliado),x.id]));
-  const byId=new Map();rows.forEach(x=>{if(!x.image_url)return;if(!byId.has(x.produto_id))byId.set(x.produto_id,[]);byId.get(x.produto_id).push(x.image_url)});
-  document.querySelectorAll('#grade-produtos .card').forEach(card=>{
-   const buy=card.querySelector('a.botao'),link=card.querySelector('.produto-imagem-link'),img=link?.querySelector('img');if(!buy||!link||!img)return;
-   const id=idByLink.get(norm(buy.href)),gallery=byId.get(id)||[];if(!gallery.length)return;
-   let current=0;const show=()=>{img.src=gallery[current];img.removeAttribute('srcset');img.loading='lazy';counter.textContent=(current+1)+'/'+gallery.length};
+  const productById=new Map(products.map(x=>[String(x.id),x])),byId=new Map();
+  rows.forEach(x=>{if(!x.image_url)return;const k=String(x.produto_id);if(!byId.has(k))byId.set(k,[]);if(!byId.get(k).includes(x.image_url))byId.get(k).push(x.image_url)});
+  function apply(card){
+   if(applied.has(card))return;
+   const buy=card.querySelector('a.botao'),link=card.querySelector('.produto-imagem-link'),img=link?.querySelector('img');
+   if(!buy||!link||!img)return;
+   const id=idByLink.get(norm(buy.href));if(!id)return;
+   const product=productById.get(String(id)),gallery=(byId.get(String(id))||[]).slice();
+   const primary=String(product?.image_url||product?.Imagem||img.src||'');
+   if(primary&&!gallery.includes(primary))gallery.unshift(primary);
+   if(!gallery.length)return;
+   applied.add(card);
+   let current=0;
+   const show=()=>{img.src=gallery[current];img.removeAttribute('srcset');img.loading='lazy';counter.textContent=(current+1)+'/'+gallery.length;};
    if(gallery.length===1){img.src=gallery[0];return}
-   link.classList.add('produto-galeria');const prev=document.createElement('button'),next=document.createElement('button'),counter=document.createElement('span');
+   link.classList.add('produto-galeria');
+   const prev=document.createElement('button'),next=document.createElement('button'),counter=document.createElement('span');
    prev.type=next.type='button';prev.className='galeria-nav galeria-prev';next.className='galeria-nav galeria-next';prev.textContent='‹';next.textContent='›';prev.setAttribute('aria-label','Foto anterior');next.setAttribute('aria-label','Próxima foto');counter.className='galeria-count';
    const move=(delta,e)=>{e.preventDefault();e.stopPropagation();current=(current+delta+gallery.length)%gallery.length;show()};
-   prev.addEventListener('click',e=>move(-1,e));next.addEventListener('click',e=>move(1,e));link.append(prev,next,counter);show();
-  });
+   prev.addEventListener('click',move.bind(null,-1));next.addEventListener('click',move.bind(null,1));link.append(prev,next,counter);show();
+  }
+  const scan=()=>document.querySelectorAll('#grade-produtos .card').forEach(apply);
+  scan();
+  const grade=document.getElementById('grade-produtos');
+  if(grade)new MutationObserver(scan).observe(grade,{childList:true});
  }catch(e){console.warn('[MarQ] Não foi possível carregar a galeria de fotos:',e)}
 })();
-</script>
 
 
 <script>
