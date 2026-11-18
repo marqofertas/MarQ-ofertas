@@ -9,6 +9,18 @@
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#fff;color:#64101f;line-height:1.6}.top,footer{background:#64101f;color:#fff;text-align:center;padding:13px}header,nav{background:#fff;padding:15px 5%;display:flex;gap:20px;align-items:center;flex-wrap:wrap}a{color:#b42335;text-decoration:none;font-weight:bold}.logo{font-size:26px;color:#64101f}main{max-width:1000px;width:92%;margin:28px auto}.product{background:#fff;border:1px solid #eee4df;border-radius:20px;padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:28px}.visual{background:#fff9ed;border-radius:16px;padding:15px;display:grid;place-items:center;min-height:300px}.visual img{width:100%;max-height:420px;object-fit:contain;border-radius:12px}.caption,.note{font-size:12px;color:#806c6b}.tag{color:#b42335;font-weight:bold}h1{font-size:clamp(25px,4vw,36px);line-height:1.2}.price{background:linear-gradient(110deg,#fff9ed,#fff9ed);padding:16px;border-radius:12px;margin:16px 0}.price strong{display:block;color:#8f1728;font-size:26px}.old{color:#fff9ed;text-decoration:line-through;font-size:14px}.buy{display:block;text-align:center;background:#b42335;color:#fff;padding:15px;border-radius:12px;margin-top:22px}li{margin:7px 0}@media(max-width:700px){.product{grid-template-columns:1fr;padding:16px}}
 </style>
+
+<style id="marq-green-offers">
+/* Identidade visual das ofertas: verde para preços e promoções */
+:root{--marq-green:#16833b;--marq-green-dark:#11652f;--marq-green-soft:#eff9f1;--marq-green-line:#cce8d2}
+#grade-produtos .preco,#grade-produtos .preco strong,.preco,.promo-price strong{color:var(--marq-green-dark)!important}
+#grade-produtos .promo-price,.promo-price{background:linear-gradient(110deg,#eff9f1,#f7fcf8)!important;border:1px solid var(--marq-green-line)!important;border-radius:10px}
+#grade-produtos .promo-price .old-price,.promo-price .old-price,.old-price,.old{color:#718477!important}
+#grade-produtos .promo-price small,.promo-price small,.preco small{color:#52735c!important}
+#grade-produtos .promo-card-label,.promo-card-label{background:linear-gradient(110deg,#e5f5e9,#f1faf3)!important;color:var(--marq-green-dark)!important;border:1px solid var(--marq-green-line)!important}
+#grade-produtos .promo-card-label b,.promo-card-label b{background:var(--marq-green)!important;color:#fff!important}
+.promo-badge,.discount-badge,.desconto,.garimpo-discount{background:#e5f5e9!important;color:var(--marq-green-dark)!important;border:1px solid var(--marq-green-line)!important}
+</style>
 </head>
 <body>
 <div class="top">🧘 Pilates, yoga e bem-estar • MarQ Ofertas</div>
