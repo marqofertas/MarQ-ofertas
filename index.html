@@ -3091,7 +3091,7 @@ if ("serviceWorker" in navigator) {
 
 
 <script>
-/* MARQ-LIVE-PRICES-V1 — usa somente preços confirmados pela rotina de verificação */
+/* MARQ-LIVE-PRICES-V2 — exibe preços informados e verificados no banco */
 (async()=>{
  const endpoint='https://zonclgsfqtylnedxigxd.supabase.co/rest/v1/produtos?select=link_afiliado,preco,preco_anterior,preco_verificado_em,status_preco&ativo=eq.true&limit=1000';
  const key='sb_publishable_7Oi8lKwThZ2kKQUVxUT-oQ_3O-4_mSK';
@@ -3105,19 +3105,25 @@ if ("serviceWorker" in navigator) {
    const buy=card.querySelector('a.botao'),price=card.querySelector('.preco');
    if(!buy||!price)return;
    const item=byLink.get(norm(buy.href));if(!item)return;
-   if(item.status_preco==='verificado'&&Number(item.preco)>0){
-    price.replaceChildren();
+   price.replaceChildren();
+   if(Number(item.preco)>0){
     const current=document.createElement('strong');current.textContent=money(item.preco);price.append(current);
-    if(Number(item.preco_anterior)>0&&Math.abs(Number(item.preco_anterior)-Number(item.preco))>=.01){
-     const old=document.createElement('small');old.style.cssText='display:block;color:#806c6b;font-size:11px;text-decoration:line-through;font-weight:600';old.textContent='Antes: '+money(item.preco_anterior);price.append(old);
-     const tag=document.createElement('small');tag.style.cssText='display:block;color:#8f1728;font-size:10px;font-weight:800';tag.textContent=Number(item.preco)<Number(item.preco_anterior)?'PREÇO REDUZIDO':'PREÇO ATUALIZADO';price.append(tag);
+    if(Number(item.preco_anterior)>Number(item.preco)){
+     const old=document.createElement('small');old.style.cssText='display:block;color:#806c6b;font-size:11px;text-decoration:line-through;font-weight:600';old.textContent='De '+money(item.preco_anterior);price.append(old);
+     const saving=Number(item.preco_anterior)-Number(item.preco);
+     const percent=Math.round(saving/Number(item.preco_anterior)*100);
+     const tag=document.createElement('small');tag.style.cssText='display:block;color:#16834a;font-size:10px;font-weight:800';tag.textContent='ECONOMIZE '+money(saving)+' • '+percent+'% OFF';price.append(tag);
+    }else if(item.status_preco==='verificado'&&item.preco_verificado_em){
+     const checked=document.createElement('small');checked.style.cssText='display:block;color:#806c6b;font-size:9px;font-weight:500;margin-top:4px';checked.textContent='Preço consultado em '+new Date(item.preco_verificado_em).toLocaleDateString('pt-BR');price.append(checked);
+    }else{
+     const note=document.createElement('small');note.style.cssText='display:block;color:#806c6b;font-size:9px;font-weight:500;margin-top:4px';note.textContent='Preço informado • confirme no anúncio';price.append(note);
     }
-    const checked=document.createElement('small');checked.style.cssText='display:block;color:#806c6b;font-size:9px;font-weight:500;margin-top:4px';checked.textContent='Consultado em '+new Date(item.preco_verificado_em).toLocaleDateString('pt-BR');price.append(checked);
+   }else{
+    const note=document.createElement('small');note.style.cssText='display:block;color:#806c6b;font-size:12px;font-weight:600';note.textContent='Consulte o preço no anúncio';price.append(note);
    }
   });
- }catch(e){console.warn('[MarQ] Não foi possível sincronizar os preços verificados:',e)}
-})();
-</script>
+ }catch(e){console.warn('[MarQ] Não foi possível sincronizar os preços do catálogo:',e)}
+})();</script>
 
 
 <script id="marq-dynamic-shein-products">
