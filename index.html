@@ -2995,7 +2995,7 @@ if ("serviceWorker" in navigator) {
 (async()=>{
  const base='https://zonclgsfqtylnedxigxd.supabase.co/rest/v1/',key='sb_publishable_7Oi8lKwThZ2kKQUVxUT-oQ_3O-4_mSK';
  const headers={apikey:key,Authorization:'Bearer '+key};
- const norm=v=>{try{const u=new URL(v,location.href);return(u.origin.toLowerCase()+u.pathname).replace(/\\/$/,'')}catch(e){return String(v||'').trim()}};
+ const norm=v=>{try{const u=new URL(v,location.href);return(u.origin.toLowerCase()+u.pathname).replace(/\/$/,'')}catch(e){return String(v||'').trim()}};
  const applied=new WeakSet();
  try{
   const [pr,ir]=await Promise.all([
