@@ -383,7 +383,7 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
   finally{button.disabled=false;button.textContent='Entrar no painel →'}
  });
  $('logout').addEventListener('click',async()=>{await client.auth.signOut();location.reload()});
- client.auth.onAuthStateChange((_event,session)=>{if(!session){app.classList.add('hidden');login.classList.remove('hidden');$('logout').classList.add('hidden')}});
+ client.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){app.classList.add('hidden');login.classList.remove('hidden');$('logout').classList.add('hidden');status.textContent='Sessão encerrada. Entre novamente para acessar o painel.';}else if(session&&session.user?.id===ADMIN_ID){login.classList.add('hidden');app.classList.remove('hidden');$('logout').classList.remove('hidden');}});
  $('refresh').addEventListener('click',loadData);$('periodFilter').addEventListener('change',renderAll);$('productSearch').addEventListener('input',renderCatalog);
  async function loadMlStatus(){
   const badge=$('mlConnectionStatus'),uri=$('mlRedirectUri'),help=$('mlConnectHelp');
