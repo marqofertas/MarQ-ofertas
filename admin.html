@@ -720,6 +720,20 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
  });
  let sheinParsed=null;
  let sheinCapturedImage=null;
+ let sheinPhotoPreviewUrl=null;
+ $('sheinPhotoFile').addEventListener('change',()=>{
+  const file=$('sheinPhotoFile').files?.[0]||null;
+  const preview=$('sheinPhotoPreview'),img=$('sheinPhotoPreviewImg'),label=$('sheinPhotoFileName');
+  if(sheinPhotoPreviewUrl){URL.revokeObjectURL(sheinPhotoPreviewUrl);sheinPhotoPreviewUrl=null}
+  if(!file){preview.classList.add('hidden');img.removeAttribute('src');label.textContent='';return}
+  if(!/^image\\/(jpeg|png|webp)$/i.test(file.type)||file.size>5*1024*1024){
+   $('sheinPhotoFile').value='';preview.classList.add('hidden');img.removeAttribute('src');
+   toast('Escolha uma foto JPG, PNG ou WebP de até 5 MB.');return;
+  }
+  sheinPhotoPreviewUrl=URL.createObjectURL(file);img.src=sheinPhotoPreviewUrl;
+  label.textContent=file.name+' · '+(file.size/1024/1024).toFixed(2)+' MB';
+  preview.classList.remove('hidden');preview.style.display='flex';
+ });
  function parseSheinMoney(value){
   const cleaned=String(value||'').replace(/R\$/ig,'').replace(/\s/g,'').replace(/[^0-9.,]/g,'');
   if(!cleaned)return NaN;
@@ -777,13 +791,11 @@ main{min-width:0}.page{display:none}.page.active{display:block}.page-head{displa
     if(selectedPhoto.size>5*1024*1024)throw new Error('A foto deve ter no máximo 5 MB.');
     const ext=selectedPhoto.type==='image/png'?'png':selectedPhoto.type==='image/webp'?'webp':'jpg';
     const path='shein/'+Date.now()+'-'+crypto.randomUUID()+'.'+ext;
-    const {error:uploadError}=await client.storage.from('produtos').upload(path,selectedPhoto,{contentType:selectedPhoto.type,upsert:false});
-    if(uploadError){
-     console.warn('Upload da foto SHEIN não concluído:',uploadError.message);
-     toast('A foto não foi enviada. O cadastro continuará sem ela.');
-    }else{
-     sheinCapturedImage=client.storage.from('produtos').getPublicUrl(path).data.publicUrl;
-    }
+    $('sheinImportPreview').innerHTML='<i>…</i><div><b>Enviando foto…</b>Aguarde enquanto a imagem é salva na galeria da MarQ.</div>';
+    const {error:uploadError}=await client.storage.from('produtos').upload(path,selectedPhoto,{contentType:selectedPhoto.type,upsert:false,cacheControl:'3600'});
+    if(uploadError)throw new Error('Falha ao enviar a foto: '+uploadError.message+'. O produto não foi cadastrado; tente novamente.');
+    sheinCapturedImage=client.storage.from('produtos').getPublicUrl(path).data.publicUrl;
+    if(!sheinCapturedImage||!/^https:\\/\\//i.test(sheinCapturedImage))throw new Error('A foto foi enviada, mas não foi possível gerar o endereço público. O produto não foi cadastrado.');
    }
    const payload={nome:sheinParsed.title,preco:sheinParsed.price,categoria:'SHEIN',link_afiliado:sheinParsed.link,Imagem:sheinCapturedImage,image_url:sheinCapturedImage,ativo:true,status_preco:'informado_afiliado'};
    const {data:created,error}=await client.from('produtos').insert(payload).select('id').single();
