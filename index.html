@@ -2397,7 +2397,7 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
     if (!response.ok) throw new Error('Catálogo dinâmico: HTTP ' + response.status);
     const rows = await response.json();
     const existingIds = new Set(Array.from(grade.querySelectorAll(':scope > .card')).map(card => String(card.dataset.productId || '')));
-    rows.forEach(product => {
+    rows.slice().reverse().forEach(product => {
       const id = String(product.id || '');
       const affiliate = String(product.link_afiliado || '');
       if (!id || !affiliate || existingIds.has(id)) return;
