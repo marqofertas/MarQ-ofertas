@@ -3682,14 +3682,17 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{ou
 </style>
 
 
-<style id="marq-green-prices-final-v1">
+<style id="marq-green-prices-final-v2">
 :root{--marq-green:#16833b;--marq-green-dark:#11652f;--marq-green-soft:#eff9f1;--marq-green-line:#cce8d2}
-#grade-produtos .card .preco,#grade-produtos .card .preco.promo-price{color:var(--marq-green-dark)!important;background:var(--marq-green-soft)!important;border:1px solid var(--marq-green-line)!important;border-left:4px solid var(--marq-green)!important}
-#grade-produtos .card .preco::before{background:var(--marq-green)!important;color:#fff!important}
-#grade-produtos .card .preco strong,#grade-produtos .card .preco.promo-price strong,#grade-produtos .card .preco b{color:var(--marq-green-dark)!important}
-#grade-produtos .card .preco small,#grade-produtos .card .preco.promo-price small{color:#52735c!important}
-#grade-produtos .card .preco .old-price,#grade-produtos .card .preco del,#grade-produtos .card .preco s,#grade-produtos .card .preco .preco-antigo{color:#718477!important}
+#grade-produtos .card .preco,#grade-produtos .card .preco.promo-price{display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:4px!important;min-height:0!important;margin:5px 0 9px!important;padding:10px 11px!important;color:var(--marq-green-dark)!important;background:linear-gradient(110deg,var(--marq-green-soft),#f8fcf8)!important;border:1px solid var(--marq-green-line)!important;border-left:4px solid var(--marq-green)!important;border-radius:10px!important;font-size:20px!important;font-weight:900!important;line-height:1.2!important;letter-spacing:-.35px!important}
+#grade-produtos .card .preco strong,#grade-produtos .card .preco b,#grade-produtos .card .promo-price strong{color:var(--marq-green-dark)!important;font-size:inherit!important;font-weight:900!important}
+#grade-produtos .card .preco small{display:block!important;color:#52735c!important;font-size:10px!important;font-weight:700!important;line-height:1.35!important;letter-spacing:0!important}
+#grade-produtos .card .preco small[style*="line-through"],#grade-produtos .card .preco del,#grade-produtos .card .preco s,#grade-produtos .card .preco .old-price{color:#718477!important;font-size:10px!important;font-weight:600!important;text-decoration:line-through!important}
+#grade-produtos .card .promo-card-label{background:var(--marq-green-soft)!important;color:var(--marq-green-dark)!important;border:1px solid var(--marq-green-line)!important}
+#grade-produtos .card .promo-card-label b{background:var(--marq-green)!important;color:#fff!important}
+#grade-produtos .card .promo-badge,#grade-produtos .card .discount-badge,#grade-produtos .card .desconto{background:#e5f5e9!important;color:var(--marq-green-dark)!important;border:1px solid var(--marq-green-line)!important}
 .marq-daily-info>strong{color:var(--marq-green-dark)!important}
+@media(max-width:650px){#grade-produtos .card .preco,#grade-produtos .card .preco.promo-price{font-size:18px!important;padding:9px!important}}
 </style>
 </body>
 </html>
