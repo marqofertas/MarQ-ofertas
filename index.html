@@ -1524,6 +1524,9 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
 #grade-produtos .produto-galeria .galeria-prev{left:7px}#grade-produtos .produto-galeria .galeria-next{right:7px}
 #grade-produtos .produto-galeria .galeria-count{position:absolute;right:8px;bottom:8px;z-index:4;background:#16833b;color:#fff;border-radius:20px;padding:3px 8px;font-size:11px;font-weight:800}
 </style>
+<style id="marq-achadinhos-videos-css">
+.marq-videos-section{width:92%;max-width:1180px;margin:38px auto 42px}.marq-videos-heading{margin-bottom:17px}.marq-videos-heading>span{font-size:10px;letter-spacing:1.5px;font-weight:900;color:#8f1728}.marq-videos-heading h2{font-size:clamp(24px,3vw,30px);color:#64101f;margin:6px 0}.marq-videos-heading p{font-size:13px;color:#806c6b}.marq-videos-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}.marq-video-card{background:#fff;border:1px solid #e8eee9;border-radius:16px;overflow:hidden;box-shadow:0 5px 18px #64101f0c}.marq-video-card video{display:block;width:100%;height:300px;object-fit:cover;background:#171717}.marq-video-card h3{font-size:13px;line-height:1.4;color:#64101f;padding:12px 12px 5px}.marq-video-card a{display:block;margin:0 12px 12px;padding:10px;text-align:center;background:#8f1728;color:#fff;border-radius:9px;text-decoration:none;font-size:11px;font-weight:900}.marq-videos-loading,.marq-videos-empty{background:#fff;padding:18px;border-radius:12px;color:#806c6b;font-size:13px;grid-column:1/-1}@media(max-width:760px){.marq-videos-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.marq-video-card video{height:245px}.marq-video-card h3{font-size:12px;padding:9px 9px 5px}.marq-video-card a{margin:0 9px 9px;font-size:10px}}@media(max-width:390px){.marq-video-card video{height:205px}}
+</style>
 </head>
 <body>
 <a class="skip-link" href="#ofertas">Pular para as ofertas</a>
@@ -1671,6 +1674,8 @@ nav a{color:#fff!important;font-size:13px!important;font-weight:700!important}
     <button class="categoria" type="button" data-filter="pets"><img src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=160&h=160&fit=crop&auto=format" alt="Cachorro de estimação"><span><b>Pets</b><small>Cães, gatos e acessórios</small></span></button>
   </div>
 </section>
+
+<section id="achadinhos-videos" class="marq-videos-section"><div class="marq-videos-heading"><span>🎬 CONHEÇA ANTES DE COMPRAR</span><h2>Achadinhos em vídeo</h2><p>Veja os detalhes e descubra seus próximos favoritos.</p></div><div id="marq-videos-grid" class="marq-videos-grid"><p class="marq-videos-loading">Carregando vídeos selecionados…</p></div></section>
 
 <section id="ofertas">
   <div class="section-head"><h2>Ofertas em destaque na MarQ</h2><span class="header-tag">SELEÇÃO POPULAR</span></div>
@@ -3749,5 +3754,8 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{ou
 })();
 </script>
 
+<script id="marq-achadinhos-videos-js">
+(()=>{const grid=document.getElementById('marq-videos-grid');if(!grid)return;const API='https://zonclgsfqtylnedxigxd.supabase.co',KEY='sb_publishable_7Oi8lKwThZ2kKQUVxUT-oQ_3O-4_mSK';const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));fetch(API+'/rest/v1/produtos?select=id,nome,image_url,Imagem,video_url&ativo=eq.true&video_url=not.is.null&order=created_at.desc&limit=8',{headers:{apikey:KEY},cache:'no-store'}).then(r=>{if(!r.ok)throw Error('Não foi possível carregar os vídeos');return r.json()}).then(rows=>{grid.replaceChildren();const valid=(rows||[]).filter(p=>/^https:\/\//i.test(String(p.video_url||'')));if(!valid.length){grid.innerHTML='<p class="marq-videos-empty">Estamos preparando os primeiros achadinhos em vídeo. Volte em breve!</p>';return}valid.forEach(p=>{const card=document.createElement('article');card.className='marq-video-card';const video=document.createElement('video');video.src=p.video_url;video.controls=true;video.playsInline=true;video.preload='metadata';video.setAttribute('aria-label','Vídeo de '+(p.nome||'produto'));const title=document.createElement('h3');title.textContent=p.nome||'Achadinho MarQ';const link=document.createElement('a');link.href='./produto.html?id='+encodeURIComponent(p.id);link.textContent='VER PRODUTO E OFERTA →';card.append(video,title,link);grid.append(card)})}).catch(e=>{console.warn('[MarQ] vídeos:',e);grid.innerHTML='<p class="marq-videos-empty">Os vídeos não puderam ser carregados agora.</p>'})})();
+</script>
 </body>
 </html>
